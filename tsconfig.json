@@ -3,7 +3,9 @@
     "exclude": ["src/tests"],
     "compilerOptions": {
         "outDir": "./build/TS",
-        "paths": {},
+        "paths": {
+            "@WebCompLib" : ["./libs/WebComp/src/lib/index.ts"],
+        },
         "sourceMap": true,
         "alwaysStrict": true,
         "strict": true,
