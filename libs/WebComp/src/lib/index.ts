@@ -1,10 +1,5 @@
 // ================== Low level (definitions)
 
-/*type ViewCtx<ELEMS extends Record<string, HTMLElement> = {}> = {
-    target  : HTMLElement,
-    elements: ELEMS
-}*/
-
 export interface IView<RENDER_ARGS extends any[] = []> {
 
     //render(...args: RENDER_ARGS): void;
@@ -25,9 +20,17 @@ import extractElements, { Cstrs, Elems } from "../extractElements";
 /*
     onUiSetup?: (ctx: SetupCtx<Instances<NoInfer<ElemCstrs>>>) => void
 */
+
+type ViewCtx<ELEMS extends Elems> = {
+    target  : HTMLElement,
+    root    : DocumentFragment|HTMLElement,
+    elements: ELEMS
+}
+
 type ViewFactoryArgs<ELEMS extends Elems> = 
-      { elements: Cstrs<ELEMS> }
-    & ShadowTemplateArgs;
+      ShadowTemplateArgs
+    & { elements ?: Cstrs<ELEMS> }
+    & { onSetupUI?: (ctx: ViewCtx<NoInfer<ELEMS>>) => void };
 
 export function createViewClass<ELEMS extends Elems>(
             args: ViewFactoryArgs<ELEMS>
@@ -40,14 +43,19 @@ export function createViewClass<ELEMS extends Elems>(
         constructor(target: HTMLElement) {
 
             const root = template.createShadowRoot(target);
-            let elements = {};
+            let elements = {} as ELEMS;
             if( args.elements !== undefined)
                 elements = extractElements(root, args.elements);
             
-            const context = {
+            const ctx = {
                 target,
-                elements
+                root,
+                elements,
+                //TODO... additional props...
             }
+
+            if( args.onSetupUI !== undefined)
+                args.onSetupUI(ctx);
         }
     }
 }

@@ -8,10 +8,11 @@ const Pipe = defineWebComponent({
         Hello: HTMLDivElement
     },
     // hooks
-    /* onUiSetup: (ctx) => {
-        //TODO: ctx...
-        console.warn(ctx.elements);
-    } */
+    onSetupUI: (ctx) => {
+        ctx; //TODO: additional props...
+    }
+    //TODO: onRenderUI
+
     // actions (internals)
 
     // actions (externals)
