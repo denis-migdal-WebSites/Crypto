@@ -1,12 +1,13 @@
 // ================== Low level (definitions)
 
-export interface IView<RENDER_ARGS extends any[] = []> {
-
-    //render(...args: RENDER_ARGS): void;
+export interface IView<ELEMS extends Elems> {
+    target  : HTMLElement,
+    root    : DocumentFragment|HTMLElement,
+    elements: ELEMS
 }
 
-export type ViewCstr<RENDER_ARGS extends any[] = []> = {
-    new(target: HTMLElement): IView<RENDER_ARGS>
+export type ViewCstr<ELEMS extends Elems> = {
+    new(target: HTMLElement): IView<ELEMS>
 };
 
 // ================== Middle level (configurable)
@@ -16,58 +17,63 @@ import style from "../ShadowTemplate/parsers/style";
 import template from "../ShadowTemplate/parsers/template";
 
 import extractElements, { Cstrs, Elems } from "../extractElements";
+import installMethods, { Methods } from "../installMethods";
 
-/*
-    onUiSetup?: (ctx: SetupCtx<Instances<NoInfer<ElemCstrs>>>) => void
-*/
+// ViewCtx<NoInfer<ELEMS>>
 
-type ViewCtx<ELEMS extends Elems> = {
-    target  : HTMLElement,
-    root    : DocumentFragment|HTMLElement,
-    elements: ELEMS
-}
-
-type ViewFactoryArgs<ELEMS extends Elems> = 
+type ViewFactoryArgs<ELEMS extends Elems, UI_ACTIONS extends Methods<IView<ELEMS>>> = 
       ShadowTemplateArgs
-    & { elements ?: Cstrs<ELEMS> }
-    & { onSetupUI?: (ctx: ViewCtx<NoInfer<ELEMS>>) => void };
+    & { elements  ?: Cstrs<ELEMS> }
+    & { uiActions ?: UI_ACTIONS };
 
-export function createViewClass<ELEMS extends Elems>(
-            args: ViewFactoryArgs<ELEMS>
+export function createViewClass<
+                                ELEMS      extends Elems,
+                                UI_ACTIONS extends Methods<IView<ELEMS>>
+                            >(
+            args: ViewFactoryArgs<ELEMS, UI_ACTIONS>
         ) {
 
     //TODO: when initialize...
     const template = new ShadowTemplate(args);
 
-    return class View implements IView {
+    class View implements IView<ELEMS> {
+
+        readonly target  : HTMLElement;
+        readonly root    : DocumentFragment;
+        readonly elements: ELEMS;
+
         constructor(target: HTMLElement) {
 
-            const root = template.createShadowRoot(target);
-            let elements = {} as ELEMS;
-            if( args.elements !== undefined)
-                elements = extractElements(root, args.elements);
-            
-            const ctx = {
-                target,
-                root,
-                elements,
-                //TODO... additional props...
-            }
+            this.target = target;
 
-            if( args.onSetupUI !== undefined)
-                args.onSetupUI(ctx);
+            this.root = template.createShadowRoot(target);
+            this.elements = args.elements !== undefined
+                            ? extractElements(this.root, args.elements)
+                            : {} as ELEMS;
         }
     }
+
+    if( args.uiActions !== undefined)
+        installMethods(View, args.uiActions)
+
+    //TODO: return type...
+    return View;
 }
 
 // ==================
 
-export function createWebComponent(View: ViewCstr) {
+export function createWebComponent<ELEMS extends Elems>(
+                                            View: ViewCstr<ELEMS>
+                                        ) {
     return class WebComponent extends HTMLElement {
         constructor() {
             super();
 
-            new View(this);
+            const view = new View(this);
+            //TODO...
+            if( "initializeBindings" in view)
+                // @ts-ignore: TODO: default type...
+                view.initializeBindings();
         }
     }
 }
@@ -78,16 +84,25 @@ type AcceptString<T extends Record<string, any>, F extends keyof T> = {
     [K in keyof T]: K extends F ? T[K] | string : T[K];
 };
 
-type ViewFactoryArgsRaw<ELEMS extends Elems>
-    = AcceptString<ViewFactoryArgs<ELEMS>, "content"|"style">;
+type ViewFactoryArgsRaw<
+                        ELEMS      extends Elems,
+                        UI_ACTIONS extends Methods<IView<ELEMS>>
+                    >
+    = AcceptString<ViewFactoryArgs<ELEMS, UI_ACTIONS>, "content"|"style">;
 
-type WebCompArgs<ELEMS extends Elems> = {
+type WebCompArgs<
+                ELEMS      extends Elems,
+                UI_ACTIONS extends Methods<IView<ELEMS>>
+            > = {
     name: string
-} & ViewFactoryArgsRaw<ELEMS>;
+} & ViewFactoryArgsRaw<ELEMS, UI_ACTIONS>;
 
-function parseViewArgs<ELEMS extends Elems>(
-                            args: ViewFactoryArgsRaw<ELEMS>
-                    ) : ViewFactoryArgs<ELEMS> {
+function parseViewArgs<
+                ELEMS      extends Elems,
+                UI_ACTIONS extends Methods<IView<ELEMS>>
+            >(
+                args: ViewFactoryArgsRaw<ELEMS, UI_ACTIONS>
+            ) : ViewFactoryArgs<ELEMS, UI_ACTIONS> {
 
     args = {...args}; // will be modified.
 
@@ -99,11 +114,14 @@ function parseViewArgs<ELEMS extends Elems>(
     if( typeof args.style   === "string")
         args.style   = style   (args.style);
 
-    return args as ViewFactoryArgs<ELEMS>;
+    return args as ViewFactoryArgs<ELEMS, UI_ACTIONS>;
 }
 
-export function defineWebComponent<ELEMS extends Elems>(
-                args: WebCompArgs<ELEMS>
+export function defineWebComponent<
+                ELEMS      extends Elems,
+                UI_ACTIONS extends Methods<IView<ELEMS>>
+            >(
+                args: WebCompArgs<ELEMS, UI_ACTIONS>
             ) {
 
     const View = createViewClass( parseViewArgs(args) );

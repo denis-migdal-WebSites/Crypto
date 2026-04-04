@@ -7,13 +7,12 @@ const Pipe = defineWebComponent({
     elements: {
         Hello: HTMLDivElement
     },
-    // hooks
-    onSetupUI: (ctx) => {
-        ctx; //TODO: additional props...
-    }
-    //TODO: onRenderUI
-
-    // actions (internals)
-
-    // actions (externals)
+    // super possible => Object.setPrototypeOf(child, parent);
+    uiActions: {
+        initializeBindings() {
+            console.warn("HERE ;)", this.elements.Hello);
+        }
+    },
+    // handlers
+    // api (+ redirect UIActions)
 })
