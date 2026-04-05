@@ -36,7 +36,7 @@ export function createViewClass<
     //TODO: when initialize...
     const template = new ShadowTemplate(args);
 
-    class View implements IView<ELEMS> {
+    const View = class implements IView<ELEMS> {
 
         readonly target  : HTMLElement;
         readonly root    : DocumentFragment;
@@ -56,7 +56,7 @@ export function createViewClass<
     if( args.uiActions !== undefined)
         installMethods(View, args.uiActions)
 
-    //TODO: return type...
+    //TODO: verify returned type...
     return View;
 }
 

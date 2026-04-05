@@ -11,8 +11,23 @@ export type Methods<CTX extends {}> = Record<string, Method<CTX, any, any>>;
 //TODO: new type
 export default function installMethods<
                     KLASS   extends Cstr,
-                    ACTIONS extends Methods<InstanceType<KLASS>>
-                >(klass: KLASS, methods: ACTIONS) {
+                    METHODS extends Methods<InstanceType<KLASS>>
+                >(
+                    klass  : KLASS,
+                    methods: METHODS
+                ): asserts klass is KLASS
+                    & (new(...args:any[]) => InstanceType<KLASS>
+                                           & METHODS)
+            {
 
     Object.assign(klass.prototype, methods);
 }
+
+/**/
+class A {}
+const B = A;
+installMethods(B, {foo: (e: 34) => {}});
+
+const a = new B();
+a.foo(34);
+/**/

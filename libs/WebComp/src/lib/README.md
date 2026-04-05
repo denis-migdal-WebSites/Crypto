@@ -1,0 +1,12 @@
+- State : listen ( used for render() )
+- View : passive, no logic, only DOM manipulations.
+    - render state vs actions.
+- ViewController: (do I need a class ?) ~= glue.
+    - state => requestUpdate => onUpdate => render
+    - notify Ctrler/modify state
+        - process some handlers (?)
+        - laisser la vue le faire (?)
+- Controller:
+    - state (ObservableProperties)
+    - vs potential internal datas history => state ?
+    - api

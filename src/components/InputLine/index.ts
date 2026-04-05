@@ -1,10 +1,8 @@
-import "../components/InputLine";
-
 import { defineWebComponent } from "@WebCompLib"
 
-const Pipe = defineWebComponent({
-    name    : "my-pipe",
-    content : "<div data-wc-id='Hello'>Hello</div>",
+const InputLine = defineWebComponent({
+    name    : "input-line",
+    content : __LOAD_FILE__("./index.html"),
     style   : "div { background-color: red; }",
     elements: {
         Hello: HTMLDivElement
@@ -19,3 +17,5 @@ const Pipe = defineWebComponent({
     // handlers
     // api (+ redirect UIActions)
 })
+
+export default InputLine;
