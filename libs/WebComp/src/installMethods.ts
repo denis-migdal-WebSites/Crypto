@@ -29,12 +29,3 @@ export default function installMethods<
 
     Object.assign(klass.prototype, methods);
 }
-
-/**/
-class A {}
-const B = A;
-installMethods(B, {foo: (e: 34) => {}});
-
-const a = new B();
-a.foo(34);
-/**/

@@ -21,9 +21,10 @@ const Pipe = defineWebComponent({
     elements: {
         Hello: HTMLDivElement
     },
-    controller: PipeController,
-    setupController(controller) {
+    attachController() {
+        const ctrl = new PipeController();
         console.warn("HERE :-)", this.elements.Hello);
+        return ctrl;
     },
     onXi(controller, args: number) {
         // TODO: give to controller + fix types...

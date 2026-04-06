@@ -5,7 +5,6 @@ import { HooksManager, setHandlers, isHandlerName, type Hooks, type GetHandlers}
 export interface Controller<T extends Hooks> {
     readonly hooks: HooksManager<T>;
 }
-type ControllerCstr<T extends Hooks> = new() => Controller<T>;
 
 export interface IView<ELEMS extends Elems> {
     target  : HTMLElement,
@@ -62,7 +61,7 @@ export function createViewClass<
     for( const key in args ) {
 
         if(    isHandlerName(key)
-            || key === "setupController"
+            || key === "attachController"
             ) {
             // @ts-ignore
             methods[key] = args[key];
@@ -78,33 +77,25 @@ export function createViewClass<
 // ==================
 
 //TODO: view type...
-function instantiateController<
-                    CONTROLLER extends ControllerCstr<any>|null = null
-                >(Controller: CONTROLLER, view: any) {
+function instantiateController(view: any) {
 
-    if( Controller === null )
+    if( ! ("attachController" in view) )
         return null;
 
-    const controller = new Controller();
-
+    const controller = view.attachController();
     setHandlers(controller, view);
-
-    if( "setupController" in view)
-        view.setupController(controller);
 
     return controller;
 }
 
 export function createWebComponent<
-                        ELEMS extends Elems,
-                        CONTROLLER extends ControllerCstr<any>|null = null
+                        ELEMS extends Elems
                     >(
-                        View      : ViewCstr<ELEMS>,
-                        Controller: CONTROLLER
+                        View      : ViewCstr<ELEMS>
                     ) {
     return class WebComponent extends HTMLElement {
         readonly view       = new View(this);
-        readonly controller = instantiateController(Controller, this.view);
+        readonly controller = instantiateController(this.view);
     }
 }
 
@@ -119,22 +110,21 @@ type ViewFactoryArgsRaw<
                     >
     = AcceptString<ViewFactoryArgs<ELEMS>, "content"|"style">;
 
-type GetHandlersFromCstr<CONTROLLER extends ControllerCstr<any>|null>
+type GetHandlersFrom<CONTROLLER extends Controller<any>|null>
     = CONTROLLER extends null
                 ? {}
-                : GetHandlers<InstanceType<Exclude<CONTROLLER, null>>>;
+                : GetHandlers<Exclude<CONTROLLER, null>>;
 
 type WebCompArgs<
                 ELEMS      extends Elems,
-                CONTROLLER extends ControllerCstr<any>|null = null
+                CONTROLLER extends Controller<any>|null = null
             > = {
     name       : string,
-    controller?: CONTROLLER
 } & ViewFactoryArgsRaw<ELEMS>
-  & AsMethods<IView<ELEMS>, {
-    setupController?: (controller: InstanceType<Exclude<CONTROLLER, null>>) => void
-  }>
-  & AsMethods<IView<ELEMS>, GetHandlersFromCstr<NoInfer<CONTROLLER>>>
+  & {
+    attachController?: (this: IView<ELEMS>) => CONTROLLER
+  }
+  & AsMethods<IView<ELEMS>, GetHandlersFrom<NoInfer<CONTROLLER>>>
 ;
 
 function parseViewArgs<
@@ -158,18 +148,14 @@ function parseViewArgs<
 
 export function defineWebComponent<
                 ELEMS      extends Elems,
-                CONTROLLER extends ControllerCstr<any>|null = null
+                CONTROLLER extends Controller<any>|null = null
             >(
                 args: WebCompArgs<ELEMS, CONTROLLER>
             ) {
 
     const View = createViewClass( parseViewArgs(args) );
 
-    let Controller = args.controller;
-    if( Controller === undefined )
-        Controller = null as CONTROLLER;
-
-    const WebComponent = createWebComponent(View, Controller);
+    const WebComponent = createWebComponent(View);
 
     customElements.define(args.name, WebComponent);
 
