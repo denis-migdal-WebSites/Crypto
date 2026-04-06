@@ -1,7 +1,6 @@
-import extractElements from "../../libs/WebComp/src/extractElements";
 import "../components/InputLine";
 
-import { defineWebComponent, HooksManager } from "@WebCompLib"
+import { defineWebComponent, HooksManager, extractElements } from "@WebCompLib"
 
 type PipeControllerHooks = {
     xi(arg: number): void;

@@ -1,7 +1,6 @@
-// helper
-export type Elems = Record<string, HTMLElement>;
+import {type Elems} from "./types";
 
-export type Cstrs<T extends Record<string, any>> = {
+export type ElemsDesc<T extends Elems> = {
     [K in keyof T]: new() => T[K]
 }
 
@@ -9,7 +8,7 @@ export default function extractElements<
             ELEMS extends Elems
         >(
             target         : DocumentFragment|HTMLElement,
-            elemsDescriptor: Cstrs<ELEMS>
+            elemsDescriptor: ElemsDesc<ELEMS>
         ): ELEMS {
 
     const elems = target.querySelectorAll<HTMLElement>('[data-wc-id]');

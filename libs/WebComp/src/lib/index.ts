@@ -1,79 +1,27 @@
-export {HooksManager} from "../Hooks";
+export {HooksManager}    from "../Hooks";
+export {default as extractElements} from "../View/extractElements";
+
+import createViewClass, {type ViewFactoryArgs} from "../View/createViewClass";
 
 // ================== Low level (definitions)
 import { HooksManager, setHandlers, isHandlerName, type Hooks, type GetHandlers} from "../Hooks";
+
 export interface Controller<T extends Hooks> {
     readonly hooks: HooksManager<T>;
 }
 
-export interface IView<ELEMS extends Elems> {
-    target  : HTMLElement,
-    root    : DocumentFragment|HTMLElement,
-    elements: ELEMS
-}
+import {type ViewCtx, type Elems} from "../View/types";
 
 export type ViewCstr<ELEMS extends Elems> = {
-    new(target: HTMLElement): IView<ELEMS>
+    new(target: HTMLElement): ViewCtx<ELEMS>
 };
 
 // ================== Middle level (configurable)
 
-import ShadowTemplate, { ShadowTemplateArgs } from "../ShadowTemplate";
-import style from "../ShadowTemplate/parsers/style";
-import template from "../ShadowTemplate/parsers/template";
+import style    from "../View/ShadowTemplate/parsers/style";
+import template from "../View/ShadowTemplate/parsers/template";
 
-import extractElements, { Cstrs, Elems } from "../extractElements";
-import installMethods, { AsMethods, Methods } from "../installMethods";
-
-// ViewCtx<NoInfer<ELEMS>>
-
-type ViewFactoryArgs<ELEMS extends Elems> = 
-      ShadowTemplateArgs
-    & { elements  ?: Cstrs<ELEMS> };
-
-export function createViewClass<
-                                ELEMS      extends Elems,
-                            >(
-            args: ViewFactoryArgs<ELEMS>
-        ) {
-
-    //TODO: when initialize...
-    const template = new ShadowTemplate(args);
-
-    const View = class implements IView<ELEMS> {
-
-        readonly target  : HTMLElement;
-        readonly root    : DocumentFragment;
-        readonly elements: ELEMS;
-
-        constructor(target: HTMLElement) {
-
-            this.target = target;
-
-            this.root = template.createShadowRoot(target);
-            this.elements = args.elements !== undefined
-                            ? extractElements(this.root, args.elements)
-                            : {} as ELEMS;
-        }
-    }
-
-    const methods = {} as Record<string, (...args: any) => any>;
-    for( const key in args ) {
-
-        if(    isHandlerName(key)
-            || key === "createDefaultController"
-            || key === "attachController"
-            ) {
-            // @ts-ignore
-            methods[key] = args[key];
-        }
-    }
-    
-    installMethods(View, methods);
-
-    //TODO: verify returned type...
-    return View;
-}
+import { AsMethods } from "../installMethods";
 
 // ==================
 
@@ -126,11 +74,11 @@ type WebCompArgs<
     name       : string,
 } & ViewFactoryArgsRaw<ELEMS>
   & {
-    createDefaultController?: (this: IView<ELEMS>) => CONTROLLER,
-    attachController?: (this: IView<ELEMS>,
+    createDefaultController?: (this: ViewCtx<ELEMS>) => CONTROLLER,
+    attachController?: (this: ViewCtx<ELEMS>,
                         controller: Omit<NoInfer<CONTROLLER>, "hooks">) => void,
   }
-  & AsMethods<IView<ELEMS>, GetHandlersFrom<NoInfer<CONTROLLER>>>
+  & AsMethods<ViewCtx<ELEMS>, GetHandlersFrom<NoInfer<CONTROLLER>>>
 ;
 
 function parseViewArgs<
