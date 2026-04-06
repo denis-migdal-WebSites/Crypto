@@ -12,6 +12,8 @@ class PipeController {
 
     readonly hooks = new HooksManager<PipeControllerHooks>();
     // readonly state = new PipeState(this) ?
+
+    foo() {}
 }
 
 const Pipe = defineWebComponent({
@@ -21,12 +23,13 @@ const Pipe = defineWebComponent({
     elements: {
         Hello: HTMLDivElement
     },
-    attachController() {
-        const ctrl = new PipeController();
+    createController() { return new PipeController(); },
+    attachController(controller) {
+        controller.foo()
         console.warn("HERE :-)", this.elements.Hello);
-        return ctrl;
     },
     onXi(controller, args: number) {
+        controller.foo()
         // TODO: give to controller + fix types...
         console.warn("toto", controller, args);
     }

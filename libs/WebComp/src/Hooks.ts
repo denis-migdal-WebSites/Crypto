@@ -23,7 +23,10 @@ export class HooksManager<T extends Hooks> {
 type WithHooks = {hooks: HooksManager<any>};
 type GetHooks<T extends WithHooks> = T["hooks"] extends HooksManager<infer H> ? H : never;
 type Hooks2Handlers<T extends {}, H extends Hooks> = {
-    [K in string&keyof H as `on${Capitalize<K>}`]: (source: T, ...args: Parameters<H[K]>) => ReturnType<H[K]>
+    [K in string&keyof H as `on${Capitalize<K>}`]: (
+                                                source : Omit<T, "hooks">,
+                                                ...args: Parameters<H[K]>
+                                            ) => ReturnType<H[K]>
 };
 
 export type GetHandlers<T extends WithHooks> = Hooks2Handlers<T, GetHooks<T>>;
