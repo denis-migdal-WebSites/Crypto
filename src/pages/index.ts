@@ -21,7 +21,7 @@ const Pipe = defineWebComponent({
     elements: {
         Hello: HTMLDivElement
     },
-    createDefaultController() { return new PipeController(); },
+    controllerProvider() { return new PipeController(); },
     attachController(controller) {
         controller.foo()
         console.warn("HERE :-)", this.elements.Hello);

@@ -12,7 +12,7 @@ export type ViewMethods<
                     ELEMS extends Elems,
                     CONTROLLER extends Controller<any>|null = null
                 > = {
-    createDefaultController?: (this: ViewCtx<ELEMS>) => CONTROLLER,
+    controllerProvider?: (this: ViewCtx<ELEMS>) => CONTROLLER,
     attachController?: (
                         this: ViewCtx<ELEMS>,
                         controller: Omit<NoInfer<CONTROLLER>, "hooks">
@@ -61,7 +61,7 @@ export default function createViewClass<
     for( const key in args ) {
 
         if(    isHandlerName(key)
-            || key === "createDefaultController"
+            || key === "controllerProvider"
             || key === "attachController"
             ) {
             // @ts-ignore
@@ -82,7 +82,7 @@ const X = createViewClass({
     elements: {
         div: HTMLDivElement
     },
-    createDefaultController() {
+    controllerProvider() {
         //return null;
         return new Z();
     },
@@ -96,3 +96,7 @@ const x = new X(null as any);
 // but in a sense, you are not supposed to call it...
 // x.createDefaultController!();
 // x.onFoo!(null as any);
+
+/*
+https://www.typescriptlang.org/play/?#code/C4TwDgpgBAGlC8UDeAoK6oDMD22D8AXFAHYCuAtgEYQBOA3GhpqaYVAM7A0CWxA5gwC+KFEigB6cVABuARihEAFgEN2JCNNozlAG1IR2jdKEhQActgCiADy7KA0hBDsAPABUANFADKKyAD4EIwx0VBDwjABteyheKABrJ2xMKDcAXSIYiFsIYgATNUSQZJ8-CGCIiLxU6LSKypCiYg1aevRBKAAyUuVIOgkpGggAR1JuIbysbBooMBpsSBmTaF5MWlyAY2hsYihsYEUtTlJMTAA6ERDmYg3gbh2p7HcobOBcgqgAJQgN6byXTg8fheZTEED+fwACmUND47CIFhsdkczncXhg-gAlMg2lAhsBSDRdkgOqpUsFhMFfsROHiIMAEI9IWFKjhsEQAMwAFlxkkwymUnJ5IUEmMuGHxZzZKGEYkkMgATAooHx6Xd+FADtAimo8MFluYrLYaA4nK43C8cvk1IDeHwvL5ehBAvBcSyGuhorFdhbukUSo7IBkepBariOt1AxB+vKhqNxhBJjgZnMFloDat1jdtrt9ocZsdThdgtdbvddmznq93moAERs2tQmFwhFG5FmtGwLE4hr4wnE0lqb7xiYuAAK3A28RcMC8bghFPF6GptPxjLZzNxbKFHi3LCItcBtd3DT5AqFFLFwUl0sEQA
+*/
