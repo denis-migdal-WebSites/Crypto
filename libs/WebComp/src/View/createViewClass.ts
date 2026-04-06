@@ -12,13 +12,12 @@ export type ViewMethods<
                     ELEMS extends Elems,
                     CONTROLLER extends Controller<any>|null = null
                 > = {
-    controllerProvider: (this: ViewCtx<ELEMS>, target: HTMLElement) => CONTROLLER,
+    controllerProvider?: (this: ViewCtx<ELEMS>, target: HTMLElement) => CONTROLLER,
     attachController?: (
                         this: ViewCtx<ELEMS>,
                         controller: Omit<NoInfer<CONTROLLER>, "hooks">
                     ) => void,
-    // Omit<Partial => controllerProvider
-    } & AsMethods<ViewCtx<ELEMS>, GetHandlersFrom<NoInfer<CONTROLLER>>>
+    } & Partial<AsMethods<ViewCtx<ELEMS>, GetHandlersFrom<NoInfer<CONTROLLER>>>>
 
 export type ViewFactoryArgs<
                         ELEMS   extends Elems,
@@ -84,13 +83,8 @@ const X = createViewClass({
     elements: {
         div: HTMLDivElement
     },
-    controllerProvider(x) {
-        //return null;
-        return new Z();
-    },
-    onFoo() {
-
-    }
+    controllerProvider: (c) => new Z(),
+    onFoo() {}
 });
 
 const x = new X(null as any);
