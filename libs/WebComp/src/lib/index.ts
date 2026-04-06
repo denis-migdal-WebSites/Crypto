@@ -1,4 +1,11 @@
+export {HooksManager} from "../Hooks";
+
 // ================== Low level (definitions)
+import { HooksManager, setHandlers, type Hooks, type GetHandlers} from "../Hooks";
+export interface Controller<T extends Hooks> {
+    readonly hooks: HooksManager<T>;
+}
+type ControllerCstr<T extends Hooks> = new() => Controller<T>;
 
 export interface IView<ELEMS extends Elems> {
     target  : HTMLElement,
@@ -17,7 +24,7 @@ import style from "../ShadowTemplate/parsers/style";
 import template from "../ShadowTemplate/parsers/template";
 
 import extractElements, { Cstrs, Elems } from "../extractElements";
-import installMethods, { Methods } from "../installMethods";
+import installMethods, { AsMethods, Methods } from "../installMethods";
 
 // ViewCtx<NoInfer<ELEMS>>
 
@@ -56,24 +63,57 @@ export function createViewClass<
     if( args.uiActions !== undefined)
         installMethods(View, args.uiActions)
 
+    const hooks = {} as Record<string, (...args: any) => any>;
+    for( const key in args )
+        if( key[0] === "o"
+            && key[1] === "n"
+            && key[2] >= 'A' && key[2] <= 'Z' )
+            // @ts-ignore
+            hooks[key] = args[key];
+    
+    console.warn(hooks);
+    installMethods(View, hooks);
+
     //TODO: verify returned type...
     return View;
 }
 
 // ==================
 
-export function createWebComponent<ELEMS extends Elems>(
-                                            View: ViewCstr<ELEMS>
-                                        ) {
+//TODO: view type...
+function instantiateController<
+                    CONTROLLER extends ControllerCstr<any>|null = null
+                >(Controller: CONTROLLER, view: any) {
+
+    if( Controller === null )
+        return null;
+
+    const controller = new Controller();
+    setHandlers(controller, view);
+    //TODO: init bindings here...
+
+    return controller;
+}
+
+export function createWebComponent<
+                        ELEMS extends Elems,
+                        CONTROLLER extends ControllerCstr<any>|null = null
+                    >(
+                        View      : ViewCstr<ELEMS>,
+                        Controller: CONTROLLER
+                    ) {
     return class WebComponent extends HTMLElement {
+
+        readonly view       = new View(this);
+        readonly controller = instantiateController(Controller, this.view);
+
         constructor() {
             super();
 
-            const view = new View(this);
-            //TODO...
-            if( "initializeBindings" in view)
+            //TODO... => move to instantiateController (?)
+            if( "initializeBindings" in this.view)
                 // @ts-ignore: TODO: default type...
-                view.initializeBindings();
+                this.view.initializeBindings();
         }
     }
 }
@@ -90,12 +130,21 @@ type ViewFactoryArgsRaw<
                     >
     = AcceptString<ViewFactoryArgs<ELEMS, UI_ACTIONS>, "content"|"style">;
 
+type GetHandlersFromCstr<CONTROLLER extends ControllerCstr<any>|null>
+    = CONTROLLER extends null
+                ? {}
+                : GetHandlers<InstanceType<Exclude<CONTROLLER, null>>>;
+
 type WebCompArgs<
                 ELEMS      extends Elems,
-                UI_ACTIONS extends Methods<IView<ELEMS>>
+                UI_ACTIONS extends Methods<IView<ELEMS>>,
+                CONTROLLER extends ControllerCstr<any>|null = null
             > = {
-    name: string
-} & ViewFactoryArgsRaw<ELEMS, UI_ACTIONS>;
+    name       : string,
+    controller?: CONTROLLER
+} & ViewFactoryArgsRaw<ELEMS, UI_ACTIONS>
+  & AsMethods<IView<ELEMS>, GetHandlersFromCstr<NoInfer<CONTROLLER>>>
+;
 
 function parseViewArgs<
                 ELEMS      extends Elems,
@@ -119,14 +168,19 @@ function parseViewArgs<
 
 export function defineWebComponent<
                 ELEMS      extends Elems,
-                UI_ACTIONS extends Methods<IView<ELEMS>>
+                UI_ACTIONS extends Methods<IView<ELEMS>>,
+                CONTROLLER extends ControllerCstr<any>|null = null
             >(
-                args: WebCompArgs<ELEMS, UI_ACTIONS>
+                args: WebCompArgs<ELEMS, UI_ACTIONS, CONTROLLER>
             ) {
 
     const View = createViewClass( parseViewArgs(args) );
 
-    const WebComponent = createWebComponent(View);
+    let Controller = args.controller;
+    if( Controller === undefined )
+        Controller = null as CONTROLLER;
+
+    const WebComponent = createWebComponent(View, Controller);
 
     customElements.define(args.name, WebComponent);
 

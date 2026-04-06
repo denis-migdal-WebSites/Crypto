@@ -1,12 +1,11 @@
-- State : listen ( used for render() )
-- View : passive, no logic, only DOM manipulations.
-    - render state vs actions.
-- ViewController: (do I need a class ?) ~= glue.
-    - state => requestUpdate => onUpdate => render
-    - notify Ctrler/modify state
-        - process some handlers (?)
-        - laisser la vue le faire (?)
-- Controller:
-    - state (ObservableProperties)
-    - vs potential internal datas history => state ?
-    - api
+- [Passive]View(target):
+    - no logic, only DOM manipulations.
+    - instantiate the ShadowRoot
+    - listen events and call Controller methods.
+    - expose handlers used by Controller (as hooks).
+        - render vs actions.
+- Controller(hooks):
+    - expose an API.
+    - expose hooks.
+- State(hook):
+    - optional, defined/used by Controller.

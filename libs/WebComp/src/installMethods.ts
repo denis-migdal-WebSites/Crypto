@@ -6,6 +6,13 @@ type Method<
             RET  extends any
         > = (this: CTX, ...args: ARGS) => RET;
 
+export type AsMethods<
+                        CTX  extends {},
+                        T extends Record<string, (...args: any) => any>
+                    > = {
+    [K in keyof T]: (this: CTX, ...args: Parameters<T[K]>) => ReturnType<T[K]>
+}
+
 export type Methods<CTX extends {}> = Record<string, Method<CTX, any, any>>;
 
 //TODO: new type
