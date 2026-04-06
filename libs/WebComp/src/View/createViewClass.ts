@@ -17,6 +17,7 @@ export type ViewMethods<
                         this: ViewCtx<ELEMS>,
                         controller: Omit<NoInfer<CONTROLLER>, "hooks">
                     ) => void,
+    // Omit<Partial => controllerProvider
     } & AsMethods<ViewCtx<ELEMS>, GetHandlersFrom<NoInfer<CONTROLLER>>>
 
 export type ViewFactoryArgs<
