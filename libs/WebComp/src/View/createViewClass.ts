@@ -1,20 +1,35 @@
+import type { Controller} from "../Controller/types";
 
 import type { Elems, ViewCtx }           from "./types";
 import extractElements, {type ElemsDesc} from "./extractElements";
 
-//TODO: handlers + create/attach...
-export type ViewFactoryArgs<ELEMS extends Elems> = 
-      ShadowTemplateArgs
-    & { elements  ?: ElemsDesc<ELEMS> };
+export type ViewMethods<
+                    ELEMS extends Elems,
+                    CONTROLLER extends Controller<any>|null = null
+                > = {
+    createDefaultController?: (this: ViewCtx<ELEMS>) => CONTROLLER,
+}
 
-import { isHandlerName } from "../Hooks";
+export type ViewFactoryArgs<
+                        ELEMS   extends Elems,
+                        CONTROLLER extends Controller<any>|null = null
+                    > = 
+      ShadowTemplateArgs
+    & { elements  ?: ElemsDesc<ELEMS> }
+    & ViewMethods<ELEMS, CONTROLLER>;
+
+type ExtractMethods<T extends ViewFactoryArgs<any, any>>
+        = Omit<T, "elements"|keyof ShadowTemplateArgs>;
+
+import { HooksManager, isHandlerName } from "../Hooks";
 import ShadowTemplate, { ShadowTemplateArgs } from "./ShadowTemplate";
 import installMethods from "../installMethods";
 
 export default function createViewClass<
-                                ELEMS      extends Elems = {},
-                            >(
-            args: ViewFactoryArgs<ELEMS> = {}
+                        ELEMS      extends Elems = {},
+                        CONTROLLER extends Controller<any>|null = null
+                    >(
+            args: ViewFactoryArgs<ELEMS, CONTROLLER> = {} as any
         ) {
 
     const template = new ShadowTemplate(args);
@@ -36,7 +51,7 @@ export default function createViewClass<
         }
     }
 
-    const methods = {} as Record<string, (...args: any) => any>;
+    const methods = {} as ViewMethods<ELEMS, CONTROLLER>;
     for( const key in args ) {
 
         if(    isHandlerName(key)
@@ -50,14 +65,22 @@ export default function createViewClass<
     
     installMethods(View, methods);
 
-    //TODO: verify returned type...
     return View;
+}
+
+class Z{
+    readonly hooks = new HooksManager();
 }
 
 const X = createViewClass({
     elements: {
         div: HTMLDivElement
+    },
+    createDefaultController() {
+        //return null;
+        return new Z();
     }
 });
 
-//const x = new X(null as any);
+const x = new X(null as any);
+x.createDefaultController!();

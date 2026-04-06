@@ -1,7 +1,7 @@
 export {HooksManager}    from "../Hooks";
 export {default as extractElements} from "../View/extractElements";
 
-import createViewClass, {type ViewFactoryArgs} from "../View/createViewClass";
+import createViewClass, {ViewMethods, type ViewFactoryArgs} from "../View/createViewClass";
 
 // ================== Low level (definitions)
 import { HooksManager, setHandlers, isHandlerName, type Hooks, type GetHandlers} from "../Hooks";
@@ -58,9 +58,10 @@ type AcceptString<T extends Record<string, any>, F extends keyof T> = {
 };
 
 type ViewFactoryArgsRaw<
-                        ELEMS      extends Elems
+                        ELEMS      extends Elems,
+                        CONTROLLER extends Controller<any>|null = null
                     >
-    = AcceptString<ViewFactoryArgs<ELEMS>, "content"|"style">;
+    = AcceptString<ViewFactoryArgs<ELEMS, CONTROLLER>, "content"|"style">;
 
 type GetHandlersFrom<CONTROLLER extends Controller<any>|null>
     = CONTROLLER extends null
@@ -72,9 +73,8 @@ type WebCompArgs<
                 CONTROLLER extends Controller<any>|null = null
             > = {
     name       : string,
-} & ViewFactoryArgsRaw<ELEMS>
+} & ViewFactoryArgsRaw<ELEMS, CONTROLLER>
   & {
-    createDefaultController?: (this: ViewCtx<ELEMS>) => CONTROLLER,
     attachController?: (this: ViewCtx<ELEMS>,
                         controller: Omit<NoInfer<CONTROLLER>, "hooks">) => void,
   }
@@ -82,10 +82,11 @@ type WebCompArgs<
 ;
 
 function parseViewArgs<
-                ELEMS      extends Elems
+                ELEMS      extends Elems,
+                CONTROLLER extends Controller<any>|null = null
             >(
-                args: ViewFactoryArgsRaw<ELEMS>
-            ) : ViewFactoryArgs<ELEMS> {
+                args: ViewFactoryArgsRaw<ELEMS, CONTROLLER>
+            ) : ViewFactoryArgs<ELEMS, CONTROLLER> {
 
     args = {...args}; // will be modified.
 
@@ -97,11 +98,12 @@ function parseViewArgs<
     if( typeof args.style   === "string")
         args.style   = style   (args.style);
 
-    return args as ViewFactoryArgs<ELEMS>;
+    return args as ViewFactoryArgs<ELEMS, CONTROLLER>;
 }
 
 export function defineWebComponent<
                 ELEMS      extends Elems,
+                METHODS    extends ViewMethods<ELEMS, CONTROLLER>,
                 CONTROLLER extends Controller<any>|null = null
             >(
                 args: WebCompArgs<ELEMS, CONTROLLER>
