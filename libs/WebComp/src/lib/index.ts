@@ -61,7 +61,7 @@ export function createViewClass<
     for( const key in args ) {
 
         if(    isHandlerName(key)
-            || key === "createController"
+            || key === "createDefaultController"
             || key === "attachController"
             ) {
             // @ts-ignore
@@ -80,10 +80,10 @@ export function createViewClass<
 //TODO: view type...
 function instantiateController(view: any) {
 
-    if( ! ("createController" in view) )
+    if( ! ("createDefaultController" in view) )
         return null;
 
-    const controller = view.createController();
+    const controller = view.createDefaultController();
     setHandlers(controller, view);
 
     if( "attachController" in view)
@@ -126,7 +126,7 @@ type WebCompArgs<
     name       : string,
 } & ViewFactoryArgsRaw<ELEMS>
   & {
-    createController?: (this: IView<ELEMS>) => CONTROLLER,
+    createDefaultController?: (this: IView<ELEMS>) => CONTROLLER,
     attachController?: (this: IView<ELEMS>,
                         controller: Omit<NoInfer<CONTROLLER>, "hooks">) => void,
   }

@@ -7,7 +7,6 @@ type PipeControllerHooks = {
     xi(arg: number): void;
 }
 
-//TODO: ctrler with state...
 class PipeController {
 
     readonly hooks = new HooksManager<PipeControllerHooks>();
@@ -23,14 +22,13 @@ const Pipe = defineWebComponent({
     elements: {
         Hello: HTMLDivElement
     },
-    createController() { return new PipeController(); },
+    createDefaultController() { return new PipeController(); },
     attachController(controller) {
         controller.foo()
         console.warn("HERE :-)", this.elements.Hello);
     },
     onXi(controller, args: number) {
-        controller.foo()
-        // TODO: give to controller + fix types...
+        controller.foo();
         console.warn("toto", controller, args);
     }
 })
@@ -41,6 +39,5 @@ const elements = extractElements(document.body, {
     "test": Pipe
 })
 
-// @ts-ignore
 //console.warn( elements.test.view.onXi(34) );
 elements.test.controller.hooks.trigger("xi", 43); // trigger type...

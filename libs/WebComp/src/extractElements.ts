@@ -26,6 +26,9 @@ export default function extractElements<
             if( ! (elements[name] instanceof elemsDescriptor[name]) )
                 throw new Error(`Element mismatch: ${name} expecting ${elemsDescriptor[name].name}, got ${elements[name].constructor.name}`);
 
+        for(let name in elemsDescriptor)
+            if( ! (name in elements) )
+                throw new Error(`Element missing: ${name}`);
     }
 
     return elements;
