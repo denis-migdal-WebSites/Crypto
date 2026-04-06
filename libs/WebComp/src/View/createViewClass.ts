@@ -12,7 +12,7 @@ export type ViewMethods<
                     ELEMS extends Elems,
                     CONTROLLER extends Controller<any>|null = null
                 > = {
-    controllerProvider?: (this: ViewCtx<ELEMS>) => CONTROLLER,
+    controllerProvider: (this: ViewCtx<ELEMS>, target: HTMLElement) => CONTROLLER,
     attachController?: (
                         this: ViewCtx<ELEMS>,
                         controller: Omit<NoInfer<CONTROLLER>, "hooks">
@@ -74,6 +74,7 @@ export default function createViewClass<
     return View;
 }
 
+/**/
 class Z{
     readonly hooks = new HooksManager<{foo: ()=>void}>();
 }
@@ -82,7 +83,7 @@ const X = createViewClass({
     elements: {
         div: HTMLDivElement
     },
-    controllerProvider() {
+    controllerProvider(x) {
         //return null;
         return new Z();
     },
