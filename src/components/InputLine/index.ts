@@ -7,13 +7,6 @@ const InputLine = defineWebComponent({
     elements: {
         Hello: HTMLDivElement
     },
-    // super possible => Object.setPrototypeOf(child, parent);
-    uiActions: {
-        initializeBindings() {
-            console.warn("HERE ;)", this.elements.Hello);
-        }
-        //TODO: render()
-    },
     // handlers
     // api (+ redirect UIActions)
 })

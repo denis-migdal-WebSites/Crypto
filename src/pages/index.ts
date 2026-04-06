@@ -22,18 +22,16 @@ const Pipe = defineWebComponent({
         Hello: HTMLDivElement
     },
     controller: PipeController,
+    setupController(controller) {
+        console.warn("HERE :-)", this.elements.Hello);
+    },
     onXi(controller, args: number) {
         // TODO: give to controller + fix types...
         console.warn("toto", controller, args);
-    },
-    uiActions: { //TODO: rename + move...
-        // setupControllerBindings()
-        initializeBindings() { // ctrl connu seulement ici...
-            console.warn("HERE ;)", this.elements.Hello);
-        }
-        //TODO: render()
-    },
+    }
 })
+
+// test:
 
 const elements = extractElements(document.body, {
     "test": Pipe

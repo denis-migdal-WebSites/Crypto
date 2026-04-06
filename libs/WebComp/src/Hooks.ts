@@ -28,7 +28,7 @@ type Hooks2Handlers<T extends {}, H extends Hooks> = {
 
 export type GetHandlers<T extends WithHooks> = Hooks2Handlers<T, GetHooks<T>>;
 
-function isHandlerName(name: string): name is `on${Capitalize<string>}` {
+export function isHandlerName(name: string): name is `on${Capitalize<string>}` {
     return name[0] === "o" && name[1] === "n" && name[2] >= "A" && name[2] <= "Z";
 }
 
