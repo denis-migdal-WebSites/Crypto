@@ -4,7 +4,7 @@ export {default as extractElements} from "../View/extractElements";
 import createViewClass, {ViewMethods, type ViewFactoryArgs} from "../View/createViewClass";
 
 // ================== Low level (definitions)
-import { HooksManager, setHandlers, isHandlerName, type Hooks, type GetHandlers} from "../Hooks";
+import { HooksManager, setHandlers, type Hooks} from "../Hooks";
 
 export interface Controller<T extends Hooks> {
     readonly hooks: HooksManager<T>;
@@ -20,8 +20,6 @@ export type ViewCstr<ELEMS extends Elems> = {
 
 import style    from "../View/ShadowTemplate/parsers/style";
 import template from "../View/ShadowTemplate/parsers/template";
-
-import { AsMethods } from "../installMethods";
 
 // ==================
 
@@ -61,25 +59,15 @@ type ViewFactoryArgsRaw<
                         ELEMS      extends Elems,
                         CONTROLLER extends Controller<any>|null = null
                     >
-    = AcceptString<ViewFactoryArgs<ELEMS, CONTROLLER>, "content"|"style">;
-
-type GetHandlersFrom<CONTROLLER extends Controller<any>|null>
-    = CONTROLLER extends null
-                ? {}
-                : GetHandlers<Exclude<CONTROLLER, null>>;
+    = AcceptString<ViewFactoryArgs<ELEMS, CONTROLLER>, "content"|"style"> 
+  & ViewMethods<ELEMS, CONTROLLER>;
 
 type WebCompArgs<
                 ELEMS      extends Elems,
                 CONTROLLER extends Controller<any>|null = null
             > = {
     name       : string,
-} & ViewFactoryArgsRaw<ELEMS, CONTROLLER>
-  & {
-    attachController?: (this: ViewCtx<ELEMS>,
-                        controller: Omit<NoInfer<CONTROLLER>, "hooks">) => void,
-  }
-  & AsMethods<ViewCtx<ELEMS>, GetHandlersFrom<NoInfer<CONTROLLER>>>
-;
+} & ViewFactoryArgsRaw<ELEMS, CONTROLLER>;
 
 function parseViewArgs<
                 ELEMS      extends Elems,
@@ -92,10 +80,12 @@ function parseViewArgs<
 
     if( typeof args.content === "string") {
         const content = template(args.content); 
+        // @ts-ignore
         args.content = () => content.cloneNode(true);
     }
 
     if( typeof args.style   === "string")
+        // @ts-ignore
         args.style   = style   (args.style);
 
     return args as ViewFactoryArgs<ELEMS, CONTROLLER>;
@@ -103,12 +93,12 @@ function parseViewArgs<
 
 export function defineWebComponent<
                 ELEMS      extends Elems,
-                METHODS    extends ViewMethods<ELEMS, CONTROLLER>,
                 CONTROLLER extends Controller<any>|null = null
             >(
                 args: WebCompArgs<ELEMS, CONTROLLER>
             ) {
 
+    // @ts-ignore
     const View = createViewClass( parseViewArgs(args) );
 
     const WebComponent = createWebComponent(View);

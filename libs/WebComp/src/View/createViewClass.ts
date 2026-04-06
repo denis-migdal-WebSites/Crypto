@@ -3,12 +3,21 @@ import type { Controller} from "../Controller/types";
 import type { Elems, ViewCtx }           from "./types";
 import extractElements, {type ElemsDesc} from "./extractElements";
 
+type GetHandlersFrom<CONTROLLER extends Controller<any>|null>
+    = CONTROLLER extends null
+                ? {}
+                : GetHandlers<Exclude<CONTROLLER, null>>;
+
 export type ViewMethods<
                     ELEMS extends Elems,
                     CONTROLLER extends Controller<any>|null = null
                 > = {
     createDefaultController?: (this: ViewCtx<ELEMS>) => CONTROLLER,
-}
+    attachController?: (
+                        this: ViewCtx<ELEMS>,
+                        controller: Omit<NoInfer<CONTROLLER>, "hooks">
+                    ) => void,
+    } & AsMethods<ViewCtx<ELEMS>, GetHandlersFrom<NoInfer<CONTROLLER>>>
 
 export type ViewFactoryArgs<
                         ELEMS   extends Elems,
@@ -18,12 +27,9 @@ export type ViewFactoryArgs<
     & { elements  ?: ElemsDesc<ELEMS> }
     & ViewMethods<ELEMS, CONTROLLER>;
 
-type ExtractMethods<T extends ViewFactoryArgs<any, any>>
-        = Omit<T, "elements"|keyof ShadowTemplateArgs>;
-
-import { HooksManager, isHandlerName } from "../Hooks";
+import { GetHandlers, HooksManager, isHandlerName } from "../Hooks";
 import ShadowTemplate, { ShadowTemplateArgs } from "./ShadowTemplate";
-import installMethods from "../installMethods";
+import installMethods, { AsMethods } from "../installMethods";
 
 export default function createViewClass<
                         ELEMS      extends Elems = {},
@@ -69,7 +75,7 @@ export default function createViewClass<
 }
 
 class Z{
-    readonly hooks = new HooksManager();
+    readonly hooks = new HooksManager<{foo: ()=>void}>();
 }
 
 const X = createViewClass({
@@ -79,8 +85,14 @@ const X = createViewClass({
     createDefaultController() {
         //return null;
         return new Z();
+    },
+    onFoo() {
+
     }
 });
 
 const x = new X(null as any);
-x.createDefaultController!();
+// pretty hard to remove the |undefined.
+// but in a sense, you are not supposed to call it...
+// x.createDefaultController!();
+// x.onFoo!(null as any);
