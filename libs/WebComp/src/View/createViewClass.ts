@@ -87,7 +87,7 @@ const X = createViewClass({
     onFoo() {}
 });
 
-const x = new X(null as any);
+// const x = new X(null as any);
 // pretty hard to remove the |undefined.
 // but in a sense, you are not supposed to call it...
 // x.createDefaultController!();

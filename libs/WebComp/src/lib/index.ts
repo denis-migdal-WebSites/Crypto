@@ -51,45 +51,12 @@ export function createWebComponent<
 
 // ================== (High level)
 
-type AcceptString<T extends Record<string, any>, F extends keyof T> = {
-    [K in keyof T]: K extends F ? T[K] | string : T[K];
-};
-
-type ViewFactoryArgsRaw<
-                        ELEMS      extends Elems,
-                        CONTROLLER extends Controller<any>|null = null
-                    >
-    = AcceptString<ViewFactoryArgs<ELEMS, CONTROLLER>, "content"|"style"> 
-  & ViewMethods<ELEMS, CONTROLLER>;
-
 type WebCompArgs<
                 ELEMS      extends Elems,
                 CONTROLLER extends Controller<any>|null = null
             > = {
-    name       : string,
-} & ViewFactoryArgsRaw<ELEMS, CONTROLLER>;
-
-function parseViewArgs<
-                ELEMS      extends Elems,
-                CONTROLLER extends Controller<any>|null = null
-            >(
-                args: ViewFactoryArgsRaw<ELEMS, CONTROLLER>
-            ) : ViewFactoryArgs<ELEMS, CONTROLLER> {
-
-    args = {...args}; // will be modified.
-
-    if( typeof args.content === "string") {
-        const content = template(args.content); 
-        // @ts-ignore
-        args.content = () => content.cloneNode(true);
-    }
-
-    if( typeof args.style   === "string")
-        // @ts-ignore
-        args.style   = style   (args.style);
-
-    return args as ViewFactoryArgs<ELEMS, CONTROLLER>;
-}
+                name       : string,
+            } & ViewFactoryArgs<ELEMS, CONTROLLER>;
 
 export function defineWebComponent<
                 ELEMS      extends Elems,
@@ -98,8 +65,7 @@ export function defineWebComponent<
                 args: WebCompArgs<ELEMS, CONTROLLER>
             ) {
 
-    // @ts-ignore
-    const View = createViewClass( parseViewArgs(args) );
+    const View = createViewClass( args );
 
     const WebComponent = createWebComponent(View);
 
