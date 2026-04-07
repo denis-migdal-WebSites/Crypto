@@ -1,8 +1,8 @@
--> Review types
-    => move content/style parsing to View.
-    -> inferred
-    -> static
-    -> dynamic
--> 
+-> ViewCstr => not ViewCtx.
+-> Fix ?: in resulting type...
+-> Fix : View.getController
+    + View.getController()!
+    + // @ts-ignore
+      const WebComponent = createWebComponent(View);
 
 - Option to choose when to initialize View...

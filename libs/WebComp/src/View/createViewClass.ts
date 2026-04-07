@@ -12,24 +12,45 @@ export type ViewMethods<
                     ELEMS extends Elems,
                     CONTROLLER extends Controller<any>|null = null
                 > = {
-    controllerProvider?: (this: ViewCtx<ELEMS>, target: HTMLElement) => CONTROLLER,
     attachController?: (
                         this: ViewCtx<ELEMS>,
                         controller: Omit<NoInfer<CONTROLLER>, "hooks">
                     ) => void,
-    } & Partial<AsMethods<ViewCtx<ELEMS>, GetHandlersFrom<NoInfer<CONTROLLER>>>>
+    } & Partial<AsMethods<
+                            ViewCtx<ELEMS>,
+                            GetHandlersFrom<NoInfer<CONTROLLER>>
+                        >>
+
+type ControllerProvider<CONTROLLER extends Controller<any>|null = null> = (
+                                target: HTMLElement
+                            ) => CONTROLLER
 
 export type ViewFactoryArgs<
                         ELEMS   extends Elems,
                         CONTROLLER extends Controller<any>|null = null
                     > = 
       ShadowTemplateArgs
-    & { elements  ?: ElemsDesc<ELEMS> }
+    & {
+        elements  ?: ElemsDesc<ELEMS>
+        controllerProvider?: ControllerProvider<CONTROLLER>,
+    }
     & ViewMethods<ELEMS, CONTROLLER>;
 
-import { GetHandlers, HooksManager, isHandlerName } from "../Hooks";
+import { GetHandlers, HooksManager, isHandlerName, setHandlers } from "../Hooks";
 import ShadowTemplate, { ShadowTemplateArgs } from "./ShadowTemplate";
 import installMethods, { AsMethods } from "../installMethods";
+
+const NULL_PROVIDER = () => null;
+
+function parseControllerProvider<
+                            CONTROLLER extends Controller<any>|null = null
+                        >(provider?: ControllerProvider<CONTROLLER>) {
+
+    if( provider === undefined )
+        return NULL_PROVIDER;
+
+    return provider;
+}
 
 export default function createViewClass<
                         ELEMS      extends Elems = {},
@@ -40,13 +61,18 @@ export default function createViewClass<
 
     const template = new ShadowTemplate(args);
 
+    const controllerProvider = parseControllerProvider(args.controllerProvider);
+
     const View = class implements ViewCtx<ELEMS> {
 
         readonly target  : HTMLElement;
         readonly root    : DocumentFragment;
         readonly elements: ELEMS;
 
-        constructor(target: HTMLElement) {
+        static readonly getController = controllerProvider;
+
+        constructor(target    : HTMLElement,
+                    controller: CONTROLLER = View.getController(target)! ) {
 
             this.target = target;
 
@@ -54,16 +80,21 @@ export default function createViewClass<
             this.elements = args.elements !== undefined
                             ? extractElements(this.root, args.elements)
                             : {} as ELEMS;
+
+            const pthis = this as any; // TODO: type...
+            if( controller !== null ) {
+                setHandlers(controller, pthis);
+            }
+            
+            if( "attachController" in pthis )
+                pthis.attachController(controller);
         }
     }
 
     const methods = {} as ViewMethods<ELEMS, CONTROLLER>;
     for( const key in args ) {
 
-        if(    isHandlerName(key)
-            || key === "controllerProvider"
-            || key === "attachController"
-            ) {
+        if( isHandlerName(key) || key === "attachController" ) {
             // @ts-ignore
             methods[key] = args[key];
         }
@@ -77,20 +108,29 @@ export default function createViewClass<
 /**/
 class Z{
     readonly hooks = new HooksManager<{foo: ()=>void}>();
+    foo() {}
 }
 
 const X = createViewClass({
     elements: {
-        div: HTMLDivElement
+    //  div: HTMLDivElement
     },
-    controllerProvider: (c) => new Z(),
+    controllerProvider: (c) => {
+        console.warn("INIT");
+        return new Z();
+    },
+    attachController(z) {
+        console.warn("ctrl", z);
+    },
     onFoo() {}
 });
 
-// const x = new X(null as any);
+const element = document.createElement("my-component");
+// element.attachShadow({mode: "open"});
+const x = new X(element );
 // pretty hard to remove the |undefined.
 // but in a sense, you are not supposed to call it...
-// x.createDefaultController!();
+// x.onFoo();
 // x.onFoo!(null as any);
 
 /*

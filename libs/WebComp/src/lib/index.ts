@@ -1,7 +1,7 @@
 export {HooksManager}    from "../Hooks";
 export {default as extractElements} from "../View/extractElements";
 
-import createViewClass, {ViewMethods, type ViewFactoryArgs} from "../View/createViewClass";
+import createViewClass, {type ViewFactoryArgs} from "../View/createViewClass";
 
 // ================== Low level (definitions)
 import { HooksManager, setHandlers, type Hooks} from "../Hooks";
@@ -12,40 +12,28 @@ export interface Controller<T extends Hooks> {
 
 import {type ViewCtx, type Elems} from "../View/types";
 
-export type ViewCstr<ELEMS extends Elems> = {
-    new(target: HTMLElement): ViewCtx<ELEMS>
+export type ViewCstr<
+                        ELEMS      extends Elems,
+                        CONTROLLER extends Controller<any>|null
+                    > = {
+
+    //TODO: IView not ViewCtx
+    new(target: HTMLElement, controller: CONTROLLER): ViewCtx<ELEMS>
+
+    readonly getController: (target: HTMLElement) => CONTROLLER
 };
 
 // ================== Middle level (configurable)
 
-import style    from "../View/ShadowTemplate/parsers/style";
-import template from "../View/ShadowTemplate/parsers/template";
-
-// ==================
-
-//TODO: view type...
-function instantiateController(view: any) {
-
-    if( ! ("createDefaultController" in view) )
-        return null;
-
-    const controller = view.createDefaultController();
-    setHandlers(controller, view);
-
-    if( "attachController" in view)
-        view.attachController(controller);
-
-    return controller;
-}
-
 export function createWebComponent<
-                        ELEMS extends Elems
+                        ELEMS      extends Elems,
+                        CONTROLLER extends Controller<any>|null
                     >(
-                        View      : ViewCstr<ELEMS>
+                        View: ViewCstr<ELEMS, CONTROLLER>
                     ) {
     return class WebComponent extends HTMLElement {
-        readonly view       = new View(this);
-        readonly controller = instantiateController(this.view);
+        readonly controller = View.getController(this);
+        readonly view       = new View(this, this.controller);
     }
 }
 
@@ -67,6 +55,7 @@ export function defineWebComponent<
 
     const View = createViewClass( args );
 
+    // @ts-ignore
     const WebComponent = createWebComponent(View);
 
     customElements.define(args.name, WebComponent);
