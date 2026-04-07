@@ -20,7 +20,7 @@ export type ViewCstr<
     //TODO: IView not ViewCtx
     new(target: HTMLElement, controller: CONTROLLER): ViewCtx<ELEMS>
 
-    readonly getController: (target: HTMLElement) => CONTROLLER
+    readonly getDefaultController: (target: HTMLElement) => CONTROLLER
 };
 
 // ================== Middle level (configurable)
@@ -30,9 +30,10 @@ export function createWebComponent<
                         CONTROLLER extends Controller<any>|null
                     >(
                         View: ViewCstr<ELEMS, CONTROLLER>
+                        // could give default controllerFactory here...
                     ) {
     return class WebComponent extends HTMLElement {
-        readonly controller = View.getController(this);
+        readonly controller = View.getDefaultController(this);
         readonly view       = new View(this, this.controller);
     }
 }
@@ -55,7 +56,6 @@ export function defineWebComponent<
 
     const View = createViewClass( args );
 
-    // @ts-ignore
     const WebComponent = createWebComponent(View);
 
     customElements.define(args.name, WebComponent);

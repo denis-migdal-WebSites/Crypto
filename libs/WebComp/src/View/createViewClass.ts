@@ -44,10 +44,12 @@ const NULL_PROVIDER = () => null;
 
 function parseControllerProvider<
                             CONTROLLER extends Controller<any>|null = null
-                        >(provider?: ControllerProvider<CONTROLLER>) {
+                        >(
+                            provider?: ControllerProvider<CONTROLLER>
+                        ): ControllerProvider<CONTROLLER> {
 
     if( provider === undefined )
-        return NULL_PROVIDER;
+        return NULL_PROVIDER as any; // h4ck.
 
     return provider;
 }
@@ -69,10 +71,10 @@ export default function createViewClass<
         readonly root    : DocumentFragment;
         readonly elements: ELEMS;
 
-        static readonly getController = controllerProvider;
+        static readonly getDefaultController = controllerProvider;
 
         constructor(target    : HTMLElement,
-                    controller: CONTROLLER = View.getController(target)! ) {
+                    controller: CONTROLLER = View.getDefaultController(target) ) {
 
             this.target = target;
 
@@ -127,7 +129,8 @@ const X = createViewClass({
 
 const element = document.createElement("my-component");
 // element.attachShadow({mode: "open"});
-const x = new X(element );
+const x = new X(element);
+const c = X.getDefaultController(element);
 // pretty hard to remove the |undefined.
 // but in a sense, you are not supposed to call it...
 // x.onFoo();
