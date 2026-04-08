@@ -118,6 +118,7 @@ const X = createViewClass({
     //  div: HTMLDivElement
     },
     controllerProvider: (c) => {
+        void c; //test
         console.warn("INIT");
         return new Z();
     },
@@ -135,6 +136,9 @@ const c = X.getDefaultController(element);
 // but in a sense, you are not supposed to call it...
 // x.onFoo();
 // x.onFoo!(null as any);
+
+void x;
+void c;
 
 /*
 https://www.typescriptlang.org/play/?#code/C4TwDgpgBAGlC8UDeAoK6oDMD22D8AXFAHYCuAtgEYQBOA3GhpqaYVAM7A0CWxA5gwC+KFEigB6cVABuARihEAFgEN2JCNNozlAG1IR2jdKEhQActgCiADy7KA0hBDsAPABUANFADKKyAD4EIwx0VBDwjABteyheKABrJ2xMKDcAXSIYiFsIYgATNUSQZJ8-CGCIiLxU6LSKypCiYg1aevRBKAAyUuVIOgkpGggAR1JuIbysbBooMBpsSBmTaF5MWlyAY2hsYihsYEUtTlJMTAA6ERDmYg3gbh2p7HcobOBcgqgAJQgN6byXTg8fheZTEED+fwACmUND47CIFhsdkczncXhg-gAlMg2lAhsBSDRdkgOqpUsFhMFfsROHiIMAEI9IWFKjhsEQAMwAFlxkkwymUnJ5IUEmMuGHxZzZKGEYkkMgATAooHx6Xd+FADtAimo8MFluYrLYaA4nK43C8cvk1IDeHwvL5ehBAvBcSyGuhorFdhbukUSo7IBkepBariOt1AxB+vKhqNxhBJjgZnMFloDat1jdtrt9ocZsdThdgtdbvddmznq93moAERs2tQmFwhFG5FmtGwLE4hr4wnE0lqb7xiYuAAK3A28RcMC8bghFPF6GptPxjLZzNxbKFHi3LCItcBtd3DT5AqFFLFwUl0sEQA

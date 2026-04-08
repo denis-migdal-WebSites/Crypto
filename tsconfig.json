@@ -6,21 +6,35 @@
         "paths": {
             "@WebCompLib" : ["./libs/WebComp/src/lib/index.ts"],
         },
-        "sourceMap": true,
-        "alwaysStrict": true,
-        "strict": true,
+        "incremental"      : true,
         "noErrorTruncation": true,
-        "exactOptionalPropertyTypes": true,
-        "noFallthroughCasesInSwitch": true,
-        "noImplicitOverride": true,
-        "noImplicitReturns": true,
-        "allowSyntheticDefaultImports": true,
 
-        "module": "esnext",
-        "target": "esnext",
-        "allowJs": true,
-        "resolveJsonModule": true,
-        "moduleResolution": "node",
-        "incremental": true,
+        "sourceMap"         : true,
+        "alwaysStrict"      : true,
+        "erasableSyntaxOnly": true,
+        "allowJs"           : true,
+        "resolveJsonModule" : true,
+        "target"            : "esnext",
+        "module"            : "esnext",
+        "moduleResolution"  : "node",
+
+        "strict": true,
+
+        "noImplicitAny"     : true,
+        "noImplicitThis"    : true,
+        "noImplicitReturns" : true,
+        "noImplicitOverride": true,
+
+        "noUnusedLocals"      : true,
+        "noUnusedParameters"  : true,
+        "allowUnusedLabels"   : false,
+        "allowUnreachableCode": false,
+
+        "useUnknownInCatchVariables"        : true,
+        "noFallthroughCasesInSwitch"        : true,
+        "exactOptionalPropertyTypes"        : true,
+        "noPropertyAccessFromIndexSignature": true,
+        "noUncheckedSideEffectImports"      : true
+
     }
 }

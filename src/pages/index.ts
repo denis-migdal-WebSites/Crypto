@@ -40,5 +40,7 @@ const elements = extractElements(document.body, {
     "test": Pipe
 })
 
+void elements; // for debug.
+
 //console.warn( elements.test.view.onXi(34) );
 //elements.test.controller.hooks.trigger("xi", 43); // trigger type...

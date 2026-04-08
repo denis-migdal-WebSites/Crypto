@@ -4,7 +4,7 @@ export {default as extractElements} from "../View/extractElements";
 import createViewClass, {type ViewFactoryArgs} from "../View/createViewClass";
 
 // ================== Low level (definitions)
-import { HooksManager, setHandlers, type Hooks} from "../Hooks";
+import { HooksManager, type Hooks} from "../Hooks";
 
 export interface Controller<T extends Hooks> {
     readonly hooks: HooksManager<T>;

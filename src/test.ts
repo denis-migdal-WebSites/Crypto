@@ -1,0 +1,1 @@
+import "../libs/WebComp/src/Hooks2";
