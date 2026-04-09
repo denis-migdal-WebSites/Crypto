@@ -1,10 +1,10 @@
 {
-    "include": ["src"],
+    "include": ["src", "libs"],
     "exclude": ["src/tests"],
     "compilerOptions": {
         "outDir": "./build/TS",
         "paths": {
-            "@WebCompLib" : ["./libs/WebComp/src/lib/index.ts"],
+            "@WebCompLib" : ["./src/WebComp/src/lib/index.ts"],
         },
         "incremental"      : true,
         "noErrorTruncation": true,

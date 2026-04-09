@@ -1,0 +1,1 @@
+- Put WebComp in src to avoid TS strange behavior when type checking.
