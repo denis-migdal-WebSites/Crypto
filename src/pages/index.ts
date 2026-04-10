@@ -2,7 +2,7 @@ import "../components/InputLine";
 
 import { defineWebComponent, HooksManager, extractElements } from "@WebCompLib"
 
-import defineWebComponent2 from "../WebComp/src/View/createViewClass2";
+import "../WebComp/src/View/createViewFactory";
 
 type PipeControllerHooks = {
     xi(arg: number): void;
@@ -15,9 +15,6 @@ class PipeController {
 
     foo() {}
 }
-
-const X = defineWebComponent2({});
-void X; // test
 
 const Pipe = defineWebComponent({
     name    : "my-pipe",

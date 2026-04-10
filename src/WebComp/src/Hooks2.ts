@@ -1,33 +1,24 @@
 type Hook  = (...args: any[]) => any;
-type Hooks = Record<string, Hook>;
+export type Hooks = Record<string, Hook>;
 
-type ReturnOf_void <T> = T extends (...args: any[]) => infer R ? R : void;
-type ReturnOf_never<T> = T extends (...args: any[]) => infer R ? R : never;
+export type ReturnOf_void <T> = T extends (...args: any[]) => infer R ? R : void;
+export type ReturnOf_never<T> = T extends (...args: any[]) => infer R ? R : never;
 
-type HookCaller<T extends Hooks> = <K extends keyof T>(
+export type HookCaller<T extends Hooks> = <K extends keyof T>(
                                             name: K,
                                             ...args: Parameters<T[K]>
                                         ) => ReturnOf_void<T[K]>
 
-type WithHooks<T extends Hooks> = {callHook: HookCaller<T>}
+export type WithHooks<T extends Hooks> = {callHook: HookCaller<T>}
 
-type HookProvider<T extends WithHooks<any>>
-    = (target: T) => T["callHook"];
+export type GetHooks<T extends WithHooks<any>>
+    = T extends WithHooks<infer U> ? U : never;
+    //= T["callHook"] extends HookCaller<infer U> ? U : never;
 
-// hooks()
-/**
-// TODO: use in View
-type HandlersProvider<T extends WithHooks<any>>
-    = T extends WithHooks<infer U>
-        ? {[K in keyof U as `on${Capitalize<K & string>}`]: 
-            (
-                this   : void,
-                source : T,
-                ...args: Parameters<U[K]>
-            ) => ReturnOf_never<U[K]>
-        }
-        : never;/**/
-/**/
+export type HooksProvider<T extends WithHooks<any>>
+    = (target: T) => HookCaller<GetHooks<T>>;
+                     //T["callHook"];
+
 type HandlersProvider<T extends WithHooks<any>>
     = T extends WithHooks<infer U>
         ? {[K in keyof U]: (
@@ -37,9 +28,10 @@ type HandlersProvider<T extends WithHooks<any>>
             ) => ReturnOf_never<U[K]>}
         : never;
 /**/
-function hooks<T extends WithHooks<any>>(
+
+export function hooks<T extends WithHooks<any>>(
                             handlersProvider: HandlersProvider<NoInfer<T>>
-                        ): HookProvider<T> {
+                        ): HooksProvider<T> {
 
     return (target) => ((name: string, ...args: any[]) => {
 
@@ -55,7 +47,7 @@ function hooks<T extends WithHooks<any>>(
 // ==================== TESTS =======================================
 // ==================================================================
 
-/**/
+/**
 
 type AH = {
     "foo": (i: number) => void
@@ -66,7 +58,7 @@ class A {
     readonly callHook: HookCaller<AH>;
 
     // NO_HOOKS quite hard to create (?).
-    constructor(hooksProvider: HookProvider<A>) {
+    constructor(hooksProvider: HooksProvider<A>) {
         this.callHook = hooksProvider(this);
 
         const rest = this.callHook("foo", 24);

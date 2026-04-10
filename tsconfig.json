@@ -1,5 +1,5 @@
 {
-    "include": ["src", "libs"],
+    "include": ["src"],
     "exclude": ["src/tests"],
     "compilerOptions": {
         "outDir": "./build/TS",
@@ -14,9 +14,10 @@
         "erasableSyntaxOnly": true,
         "allowJs"           : true,
         "resolveJsonModule" : true,
+        "moduleResolution"  : "node",
+        "moduleDetection"   : "force",
         "target"            : "esnext",
         "module"            : "esnext",
-        "moduleResolution"  : "node",
 
         "strict": true,
 
