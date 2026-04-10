@@ -1,8 +1,9 @@
 import "../components/InputLine";
 
-import { defineWebComponent, HooksManager, extractElements } from "@WebCompLib"
+import { defineWebComponent, extractElements } from "@WebCompLib"
 
-import "../WebComp/src/View/createViewFactory";
+//TODO...
+import { HookCaller, HooksProvider } from "../WebComp/src/Hooks2";
 
 type PipeControllerHooks = {
     xi(arg: number): void;
@@ -10,31 +11,33 @@ type PipeControllerHooks = {
 
 class PipeController {
 
-    readonly hooks = new HooksManager<PipeControllerHooks>();
+    readonly callHook: HookCaller<PipeControllerHooks>;
+    
+    constructor(args: {hooksProvider: HooksProvider<PipeController>}) {
+        this.callHook = args.hooksProvider(this);
+    }
     // readonly state = new PipeState(this) ?
 
     foo() {}
 }
 
-const Pipe = defineWebComponent({
-    name    : "my-pipe",
-    content : "<div data-wc-id='Hello'>Hello</div>",
-    style   : "div { background-color: red; }",
-    elements: {
-        Hello: HTMLDivElement
-    },
-    controllerProvider() {
-        return new PipeController()
-    },
-    attachController(controller) {
-        controller.foo()
-        console.warn("HERE :-)", this.elements.Hello);
-    },
-    onXi(controller, args: number) {
-        controller.foo();
-        console.warn("toto", controller, args);
-    }
-})
+const Pipe = defineWebComponent(
+    PipeController,
+    {
+        name    : "my-pipe",
+        content : "<div data-wc-id='Hello'>Hello</div>",
+        style   : "div { background-color: red; }",
+        elements: {
+            Hello: HTMLDivElement
+        },
+        attachController(ctx, controller) {
+            controller.foo()
+            console.warn("HERE :-)", ctx.elements.Hello);
+        },
+        onXi(_ctx, args: number) {
+            console.warn("toto", args);
+        }
+    })
 
 // test:
 
@@ -42,7 +45,5 @@ const elements = extractElements(document.body, {
     "test": Pipe
 })
 
-void elements; // for debug.
-
-//console.warn( elements.test.view.onXi(34) );
-//elements.test.controller.hooks.trigger("xi", 43); // trigger type...
+//void elements; // for debug.
+elements.test.controller.callHook("xi", 34);

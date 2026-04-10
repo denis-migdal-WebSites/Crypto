@@ -72,11 +72,11 @@ export function createViewHooksProvider<
 }
 
 // fct
-type ViewFactoryControllerProvider<C extends WithHooks<any>|null = null>
+export type ViewFactoryControllerProvider<C extends WithHooks<any>|null = null>
                     = C extends null
                                     ? null
                                     : ControllerProvider<NonNullable<C>>
-type ViewFactoryArgs<
+export type ViewFactoryArgs<
             C extends WithHooks<any>|null = null,
             E extends Elems = {}
     > = 
