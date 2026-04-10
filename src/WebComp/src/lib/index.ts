@@ -4,7 +4,7 @@ export {default as extractElements} from "../View/extractElements";
 
 // ================== Low level (definitions)
 import { type Elems} from "../View/types";
-import { WithHooks } from "../Hooks2";
+import { WithHooks } from "../Hooks";
 import createViewFactory, { ViewFactoryArgs, ViewFactoryControllerProvider } from "../View/createViewFactory";
 
 // ================== (High level)

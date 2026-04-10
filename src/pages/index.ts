@@ -3,7 +3,7 @@ import "../components/InputLine";
 import { defineWebComponent, extractElements } from "@WebCompLib"
 
 //TODO...
-import { HookCaller, HooksProvider } from "../WebComp/src/Hooks2";
+import { HookCaller, HooksProvider } from "../WebComp/src/Hooks";
 
 type PipeControllerHooks = {
     xi(arg: number): void;
@@ -34,7 +34,7 @@ const Pipe = defineWebComponent(
             controller.foo()
             console.warn("HERE :-)", ctx.elements.Hello);
         },
-        onXi(_ctx, args: number) {
+        onXi(_ctx, args) {
             console.warn("toto", args);
         }
     })

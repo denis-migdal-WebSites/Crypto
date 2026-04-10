@@ -1,62 +1,100 @@
-type Hook    = (...args: any[]) => any;
-export type Hooks   = Record<string, Hook>;
+type Hook  = (...args: any[]) => any;
+export type Hooks = Record<string, Hook>;
 
-const NO_HANDLER = Symbol();
+export type ReturnOf_void <T> = T extends (...args: any[]) => infer R ? R : void;
+export type ReturnOf_never<T> = T extends (...args: any[]) => infer R ? R : never;
 
-export class HooksManager<T extends Hooks> {
+export type HookCaller<T extends Hooks> = <K extends keyof T>(
+                                            name: K,
+                                            ...args: Parameters<T[K]>
+                                        ) => ReturnOf_void<T[K]>
 
-    protected hooks: Partial<T> = {};
+export type WithHooks<T extends Hooks> = {callHook: HookCaller<T>}
 
-    trigger<K extends keyof T>(name: K, ...args: Parameters<T[K]>): ReturnType<T[K]>|typeof NO_HANDLER {
-        const hook = this.hooks[name];
-        if( hook === undefined )
-            return NO_HANDLER;
+export type GetHooks<T extends WithHooks<any>>
+    = T extends WithHooks<infer U> ? U : never;
+    //= T["callHook"] extends HookCaller<infer U> ? U : never;
 
-        return hook(...args);
-    }   
+export type HooksProvider<T extends WithHooks<any>>
+    = (target: T) => HookCaller<GetHooks<T>>;
+                     //T["callHook"];
 
-    setHandlers(bindedHandlers: Partial<T>) {
-        this.hooks = bindedHandlers;
-    }
-}
+type HandlersProvider<T extends WithHooks<any>>
+    = T extends WithHooks<infer U>
+        ? {[K in keyof U]: (
+                this   : void,
+                source : T,
+                ...args: Parameters<U[K]>
+            ) => ReturnOf_never<U[K]>}
+        : never;
+/**/
 
-type WithHooks = {hooks: HooksManager<any>};
-type GetHooks<T extends WithHooks> = T["hooks"] extends HooksManager<infer H> ? H : never;
-type Hooks2Handlers<T extends {}, H extends Hooks> = {
-    [K in string&keyof H as `on${Capitalize<K>}`]: (
-                                                source : Omit<T, "hooks">,
-                                                ...args: Parameters<H[K]>
-                                            ) => ReturnType<H[K]>
-};
+export function hooks<T extends WithHooks<any>>(
+                            handlersProvider: HandlersProvider<NoInfer<T>>
+                        ): HooksProvider<T> {
 
-export type GetHandlers<T extends WithHooks> = Hooks2Handlers<T, GetHooks<T>>;
+    return (target) => ((name: string, ...args: any[]) => {
 
-export function isHandlerName(name: string): name is `on${Capitalize<string>}` {
-    return name[0] === "o" && name[1] === "n" && name[2] >= "A" && name[2] <= "Z";
-}
-
-export function setHandlers<T extends WithHooks>(
-                            target: T,
-                            handlers: Partial<GetHandlers<NoInfer<T>>>
-                        ) {
-
-    const bindedHandlers = {} as Partial<GetHooks<T>>;
-
-    let bindedName   : string;
-    let handler      : (t: unknown, ...args: unknown[]) => unknown;
-    let bindedHandler: (...args: unknown[]) => unknown;
-
-    for(const name in handlers) {
-        if( ! isHandlerName(name) )
-            continue;
-        
-        bindedName    = name[2].toLocaleLowerCase() + name.slice(3);
-        handler       = handlers[name]! as any;
-        bindedHandler = (...args: any[]) => handler(target, ...args);
+        if( ! (name in handlersProvider) )
+            return;
 
         // @ts-ignore
-        bindedHandlers[bindedName] = bindedHandler;
-    }
-
-    target.hooks.setHandlers(bindedHandlers);
+        return handlersProvider[name](target, ...args as any)
+    }) as any;
 }
+
+// ==================================================================
+// ==================== TESTS =======================================
+// ==================================================================
+
+/**
+
+type AH = {
+    "foo": (i: number) => void
+};
+
+class A {
+
+    readonly callHook: HookCaller<AH>;
+
+    // NO_HOOKS quite hard to create (?).
+    constructor(hooksProvider: HooksProvider<A>) {
+        this.callHook = hooksProvider(this);
+
+        const rest = this.callHook("foo", 24);
+        void rest; // test
+    }
+}
+
+new A( hooks({
+    foo() {
+        return 34;
+    }
+}));
+
+type BH = {
+    "foo": (i: number) => void,
+    "faa"?: (i: string) => void
+};
+
+class B extends A {
+
+    declare readonly callHook: HookCaller<BH>;
+
+    // NO_HOOKS quite hard to create (?).
+    constructor(hooksProvider: HookProvider<B>) {
+        super(hooksProvider);
+
+        const rest = this.callHook("foo", 24);
+        void rest; // test
+    }
+}
+
+new B( hooks({
+    foo(_e, _f) {
+        return 34;
+    },
+    //faa: undefined
+}));
+
+/**/

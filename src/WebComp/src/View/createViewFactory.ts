@@ -1,5 +1,5 @@
 import createInstance, { Constructible } from "../createInstance";
-import { Hooks, GetHooks, HooksProvider, WithHooks, ReturnOf_never } from "../Hooks2";
+import { Hooks, GetHooks, HooksProvider, WithHooks, ReturnOf_never } from "../Hooks";
 import extractElements, { ElemsDesc } from "./extractElements";
 import ShadowTemplate, { ShadowTemplateArgs } from "./ShadowTemplate";
 import { Elems } from "./types";
