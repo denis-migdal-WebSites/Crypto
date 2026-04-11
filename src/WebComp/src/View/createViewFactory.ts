@@ -1,38 +1,38 @@
-import createInstance, { Constructible } from "../createInstance";
-import { Hooks, GetHooks, HooksProvider, WithHooks, ReturnOf_never } from "../Hooks";
-import extractElements, { ElemsDesc } from "./extractElements";
+import createInstance, { Constructible } from "../utils/createInstance";
+import { Hooks, HooksProvider, ReturnOf_never, ReturnOf_void } from "../utils/Hooks";
+import WithHooks, { GetHooks } from "../utils/WithHooks";
+import extractElements, { Elems, ElemsDesc } from "./extractElements";
 import ShadowTemplate, { ShadowTemplateArgs } from "./ShadowTemplate";
-import { Elems } from "./types";
 
 type Root = HTMLElement|DocumentFragment;
 
-type ViewCtx<E extends Elems> = {
+type ViewCtx<E extends Elems = Elems> = {
     target  : HTMLElement,
     root    : Root,
     elements: E
 };
 
 type ViewCallback<
-                    Ctx extends ViewCtx<any>,
-                    Args extends any[],
-                    Return extends any
+                    Ctx    extends ViewCtx,
+                    Args   extends any[],
+                    Return extends unknown
     > = (this: void, ctx: Ctx, ...args: Args) => Return;
 
-type AsHandlers<Ctx extends ViewCtx<any>, T extends Hooks> = {
+type AsHandlers<Ctx extends ViewCtx, T extends Hooks> = {
     [K in keyof T as `on${Capitalize<K&string>}`]:
             ViewCallback<Ctx, Parameters<T[K]>, ReturnOf_never<T[K]>>
 };
 type GetHandlers<
-        Ctx extends ViewCtx<any>,
-        T extends WithHooks<any>
+        Ctx extends ViewCtx,
+        T   extends WithHooks
     > = AsHandlers<Ctx, GetHooks<T>>;
 
-type ControllerProviderCtx<T extends WithHooks<any>> = {
+type ControllerProviderCtx<T extends Hooks> = {
         hooksProvider: HooksProvider<T>
     };
 
-type ControllerProvider<T extends WithHooks<any>>
-    = Constructible<T, [ControllerProviderCtx<T>]>;
+type ControllerProvider<T extends WithHooks>
+    = Constructible<T, [ControllerProviderCtx<GetHooks<T>>]>;
 
 //TODO: move...
 export function isHandlerName(name: string): name is `on${Capitalize<string>}` {
@@ -44,40 +44,45 @@ export function getHookName(name: `on${Capitalize<string>}`) {
 }
 
 export function createViewHooksProvider<
-                        Ctx extends ViewCtx<any>,
-                        T   extends WithHooks<any>
+                        Ctx extends ViewCtx,
+                        T   extends WithHooks,
+                        H   extends Hooks = GetHooks<T>
                     >(
                             ctx     : Ctx,
                             handlers: GetHandlers<Ctx, T>
-                        ): HooksProvider<T> {
+                        ): HooksProvider<H> {
 
-    const hooks = {} as GetHooks<T>;
+    const hooks = {} as H;
 
     for(const name in handlers) {
         if( ! isHandlerName(name) )
             continue;
 
+        // @ts-ignore
         hooks[getHookName(name)] = handlers[name];
     }
 
     // first args is target (controller).
-    return () => ((name: string, ...args: any[]) => {
+    return <K extends keyof H>(name: K,
+                                ...args: Parameters<H[K]>): ReturnOf_void<H[K]> => {
 
         const hook = hooks[name];
         if( hook === undefined )
+            // @ts-ignore
             return;
+        //if( ! hook ) return;
 
-        return hook(ctx, ...args as any)
-    }) as any;
+        return hook(ctx, ...args) as ReturnOf_void<H[K]>;
+    };
 }
 
 // fct
-export type ViewFactoryControllerProvider<C extends WithHooks<any>|null = null>
+export type ViewFactoryControllerProvider<C extends WithHooks|null = null>
                     = C extends null
                                     ? null
                                     : ControllerProvider<NonNullable<C>>
 export type ViewFactoryArgs<
-            C extends WithHooks<any>|null = null,
+            C extends WithHooks|null = null,
             E extends Elems = {}
     > = 
         {
@@ -101,7 +106,7 @@ const NULL_OP = () => {};
 // - https://github.com/microsoft/TypeScript/issues/63378
 // - https://github.com/microsoft/TypeScript/issues/63377
 export default function createViewFactory<
-                        C extends WithHooks<any>|null = null,
+                        C extends WithHooks|null = null,
                         E extends Elems = {}
                 >(
                     Controller: ViewFactoryControllerProvider<C>,

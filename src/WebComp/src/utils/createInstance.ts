@@ -1,6 +1,7 @@
 // from MWL
-export type Cstr<T                  = {},
-                 ARGS extends any[] = any[]
+// change {} -> object + use any[].
+export type Cstr<T    extends object = object,
+                 ARGS extends any[]  = any[]
             > = {new(...args: ARGS): T};
 
 // modified...

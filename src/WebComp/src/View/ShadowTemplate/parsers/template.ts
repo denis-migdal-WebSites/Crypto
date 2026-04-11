@@ -12,7 +12,7 @@ declare global {
 
 export default function template( ...raw:Template<HTML>): DocumentFragment {
 
-    let elem: HTML = raw[0] as any;
+    let elem = raw[0] as unknown as HTML;
 
     if( isTemplateString(raw) ) {
         

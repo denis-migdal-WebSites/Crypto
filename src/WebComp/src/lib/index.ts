@@ -1,16 +1,15 @@
-//export {HooksManager}    from "../Hooks";
 export {default as extractElements} from "../View/extractElements";
-//import createViewClass, {type ViewFactoryArgs} from "../View/createViewClass";
+export {default as WithHooks      } from "../utils/WithHooks";
 
 // ================== Low level (definitions)
-import { type Elems} from "../View/types";
-import { WithHooks } from "../Hooks";
+import { type Elems} from "../View/extractElements";
+import WithHooks from "../utils/WithHooks";
 import createViewFactory, { ViewFactoryArgs, ViewFactoryControllerProvider } from "../View/createViewFactory";
 
 // ================== (High level)
 
 export function defineWebComponent<
-                        C extends WithHooks<any>|null = null,
+                        C extends WithHooks|null = null,
                         E extends Elems = {}
                 >(
                     Controller: ViewFactoryControllerProvider<C>,

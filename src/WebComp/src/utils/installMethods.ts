@@ -1,19 +1,20 @@
-type Cstr = new(...args:any[]) => any;
+// not used currently, ignore...
+type Cstr = new(...args: any[]) => object;
 
 type Method<
             CTX  extends {},
-            ARGS extends any[],
-            RET  extends any
+            ARGS extends any[]   = any[],
+            RET  extends unknown = unknown
         > = (this: CTX, ...args: ARGS) => RET;
 
 export type AsMethods<
                         CTX  extends {},
-                        T extends Record<string, (...args: any) => any>
+                        T extends Record<string, (...args: any[]) => unknown>
                     > = {
     [K in keyof T]: (this: CTX, ...args: Parameters<T[K]>) => ReturnType<T[K]>
 }
 
-export type Methods<CTX extends {}> = Record<string, Method<CTX, any, any>>;
+export type Methods<CTX extends {}> = Record<string, Method<CTX>>;
 
 //TODO: new type
 export default function installMethods<
@@ -23,7 +24,7 @@ export default function installMethods<
                     klass  : KLASS,
                     methods: METHODS
                 ): asserts klass is KLASS
-                    & (new(...args:any[]) => InstanceType<KLASS>
+                    & (new(...args: any[]) => InstanceType<KLASS>
                                            & METHODS)
             {
 

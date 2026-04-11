@@ -1,23 +1,12 @@
 import "../components/InputLine";
 
-import { defineWebComponent, extractElements } from "@WebCompLib"
-
-//TODO...
-import { HookCaller, HooksProvider } from "../WebComp/src/Hooks";
+import { defineWebComponent, extractElements, WithHooks } from "@WebCompLib"
 
 type PipeControllerHooks = {
-    xi(arg: number): void;
+    xi(arg: number): number;
 }
 
-class PipeController {
-
-    readonly callHook: HookCaller<PipeControllerHooks>;
-    
-    constructor(args: {hooksProvider: HooksProvider<PipeController>}) {
-        this.callHook = args.hooksProvider(this);
-    }
-    // readonly state = new PipeState(this) ?
-
+class PipeController extends WithHooks<PipeControllerHooks> {
     foo() {}
 }
 
@@ -36,9 +25,9 @@ const Pipe = defineWebComponent(
         },
         onXi(_ctx, args) {
             console.warn("toto", args);
+            return 2;
         }
     })
-
 // test:
 
 const elements = extractElements(document.body, {

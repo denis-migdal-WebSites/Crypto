@@ -1,4 +1,4 @@
-import {type Elems} from "./types";
+export type Elems = Record<string, HTMLElement>;
 
 export type ElemsDesc<T extends Elems> = {
     [K in keyof T]: new() => T[K]

@@ -5,7 +5,7 @@ const df = template.content;
 
 export default function html<T extends HTMLElement>(...raw: Template<string>): T {
     
-    let elem: string = raw[0] as any;
+    let elem = raw[0] as unknown as string;
 
     if( isTemplateString(raw) ) {
         
