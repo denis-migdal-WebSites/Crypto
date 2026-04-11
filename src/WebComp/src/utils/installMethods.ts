@@ -1,15 +1,15 @@
-// not used currently, ignore...
-type Cstr = new(...args: any[]) => object;
+import { Cstr } from "./createInstance";
 
+// not used currently, ignore...
 type Method<
             CTX  extends {},
-            ARGS extends any[]   = any[],
-            RET  = any
+            ARGS extends unknown[]   = never[],
+            RET  = unknown
         > = (this: CTX, ...args: ARGS) => RET;
 
 export type AsMethods<
                         CTX  extends {},
-                        T extends Record<string, (...args: any[]) => any>
+                        T extends Record<string, (...args: never[]) => unknown>
                     > = {
     [K in keyof T]: (this: CTX, ...args: Parameters<T[K]>) => ReturnType<T[K]>
 }
@@ -24,7 +24,7 @@ export default function installMethods<
                     klass  : KLASS,
                     methods: METHODS
                 ): asserts klass is KLASS
-                    & (new(...args: any[]) => InstanceType<KLASS>
+                    & (new(...args: unknown[]) => InstanceType<KLASS>
                                            & METHODS)
             {
 
