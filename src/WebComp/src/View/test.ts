@@ -1,4 +1,4 @@
-type Hook  = (...args: any[]) => unknown;
+type Hook  = (...args: any[]) => any;
 export type Hooks = Record<string, Hook>;
 
 interface WithHooks<T extends Hooks = Hooks> {

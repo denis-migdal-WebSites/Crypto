@@ -4,12 +4,12 @@ type Cstr = new(...args: any[]) => object;
 type Method<
             CTX  extends {},
             ARGS extends any[]   = any[],
-            RET  extends unknown = unknown
+            RET  = any
         > = (this: CTX, ...args: ARGS) => RET;
 
 export type AsMethods<
                         CTX  extends {},
-                        T extends Record<string, (...args: any[]) => unknown>
+                        T extends Record<string, (...args: any[]) => any>
                     > = {
     [K in keyof T]: (this: CTX, ...args: Parameters<T[K]>) => ReturnType<T[K]>
 }

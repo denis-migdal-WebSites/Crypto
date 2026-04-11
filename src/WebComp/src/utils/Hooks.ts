@@ -1,6 +1,6 @@
 type Hook<
             Args extends any[]     = any[],
-            Ret  extends unknown   = unknown
+            Ret  = any
     > = (...args: Args) => Ret;
 export type Hooks = Record<string, Hook>;
 
@@ -19,12 +19,11 @@ export function hooks<T extends Hooks>(
                             handlersProvider: T
                         ): HooksProvider<T> {
 
-    return (<K extends keyof T>(name: K, ...args: Parameters<T[K]>): ReturnOf_void<T[K]> => {
+    return (<K extends keyof T>(name: K, ...args: Parameters<T[K]>) => {
 
         if( ! (name in handlersProvider) )
-            // @ts-ignore
             return;
 
-        return handlersProvider[name](...args) as ReturnOf_void<T[K]>;
+        return handlersProvider[name](...args);
     });
 }

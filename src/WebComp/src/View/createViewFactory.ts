@@ -1,5 +1,5 @@
 import createInstance, { Constructible } from "../utils/createInstance";
-import { Hooks, HooksProvider, ReturnOf_never, ReturnOf_void } from "../utils/Hooks";
+import { Hooks, HooksProvider, ReturnOf_never } from "../utils/Hooks";
 import WithHooks, { GetHooks } from "../utils/WithHooks";
 import extractElements, { Elems, ElemsDesc } from "./extractElements";
 import ShadowTemplate, { ShadowTemplateArgs } from "./ShadowTemplate";
@@ -15,7 +15,7 @@ type ViewCtx<E extends Elems = Elems> = {
 type ViewCallback<
                     Ctx    extends ViewCtx,
                     Args   extends any[],
-                    Return extends unknown
+                    Return
     > = (this: void, ctx: Ctx, ...args: Args) => Return;
 
 type AsHandlers<Ctx extends ViewCtx, T extends Hooks> = {
@@ -64,15 +64,14 @@ export function createViewHooksProvider<
 
     // first args is target (controller).
     return <K extends keyof H>(name: K,
-                                ...args: Parameters<H[K]>): ReturnOf_void<H[K]> => {
+                                ...args: Parameters<H[K]>) => {
 
         const hook = hooks[name];
         if( hook === undefined )
-            // @ts-ignore
             return;
         //if( ! hook ) return;
 
-        return hook(ctx, ...args) as ReturnOf_void<H[K]>;
+        return hook(ctx, ...args);
     };
 }
 
