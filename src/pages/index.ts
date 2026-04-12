@@ -37,8 +37,13 @@ const Pipe = defineWebComponent(
 // test:
 
 const elements = extractElements(document.body, {
-    "test": Pipe
-})
+    "test"     : Pipe,
+    "inputgrid": new MappedInputGrid({
+                    labels: ["H", "e", "l", "l", "o"],
+                    expected: ["H", "e", "l", "l", "o"],
+                    ro      : true
+                })
+});
 
 //void elements; // for debug.
 elements.test.controller.callHook("xi", 34);
