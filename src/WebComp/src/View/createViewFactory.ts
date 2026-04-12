@@ -3,7 +3,7 @@ import { Hooks, HooksProvider }          from "../utils/Hooks";
 import WithHooks, { GetHooks }           from "../utils/WithHooks";
 
 import validateData, { Data, DataDesc }         from "./validateData";
-import extractElements, { Elems, ElemsDesc }    from "./extractElements";
+import resolveElements, { Elems, ElemsDesc }    from "./resolveElements";
 import { createViewHooksProvider, GetHandlers } from "./handlers";
 import ShadowTemplate, { ShadowTemplateArgs }   from "./ShadowTemplate";
 import { Root, ViewCallback, ViewCtx }          from "./ViewContext";
@@ -73,8 +73,8 @@ export default function createViewFactory<
                                 ? args.attachController
                                 : NULL_OP;
     
-    const extractElems = "elements" in args
-            ? (target: Root) => extractElements(target, args.elements!)
+    const resolveElems = "elements" in args
+            ? (target: Root) => resolveElements(target, args.elements!)
             : NULL_OP_OBJ<E>;
 
     const validate = "data" in args
@@ -84,7 +84,7 @@ export default function createViewFactory<
     return (target: HTMLElement, opts: Partial<D> = {}) => {
 
         const root     = template.createShadowRoot(target);
-        const elements = extractElems(root);
+        const elements = resolveElems(root);
         const data     = validate(opts);
 
         const ctx = {

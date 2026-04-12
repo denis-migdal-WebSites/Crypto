@@ -1,5 +1,5 @@
 import { Data }  from "./validateData";
-import { Elems } from "./extractElements";
+import { Elems } from "./resolveElements";
 
 export type Root = HTMLElement|DocumentFragment;
 

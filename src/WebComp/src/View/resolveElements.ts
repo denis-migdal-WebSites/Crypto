@@ -4,7 +4,7 @@ export type ElemsDesc<T extends Elems> = {
     [K in keyof T]: T[K]|(new() => T[K])
 }
 
-export default function extractElements<
+export default function resolveElements<
             ELEMS extends Elems
         >(
             target         : DocumentFragment|HTMLElement,

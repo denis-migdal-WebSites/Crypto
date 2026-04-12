@@ -1,5 +1,5 @@
 import WithHooks     from "../utils/WithHooks";
-import { type Elems} from "./extractElements";
+import { type Elems} from "./resolveElements";
 import createViewFactory, { ViewFactoryArgs, ViewFactoryControllerProvider } from "./createViewFactory";
 import { Data, WC_ATTRNAME } from "./validateData";
 
@@ -43,7 +43,7 @@ export default function defineWebComponent<
                                 && this.hasAttribute(WC_ATTRNAME);
 
             if( this.needToConsume ) {
-                
+
                 data = JSON.parse( this.getAttribute(WC_ATTRNAME)! );
 
                 this.needToConsume = to_listen.length !== 0;
