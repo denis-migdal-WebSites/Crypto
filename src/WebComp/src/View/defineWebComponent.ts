@@ -39,12 +39,15 @@ export default function defineWebComponent<
         constructor(data: Partial<D> = EMPTY_OBJ) {
             super();
 
-            this.needToConsume =   to_listen.length !== 0
-                                && data === EMPTY_OBJ
+            this.needToConsume =   data === EMPTY_OBJ
                                 && this.hasAttribute(WC_ATTRNAME);
 
-            if( this.needToConsume )
+            if( this.needToConsume ) {
+                
                 data = JSON.parse( this.getAttribute(WC_ATTRNAME)! );
+
+                this.needToConsume = to_listen.length !== 0;
+            }
             
             //TODO: validate...
 

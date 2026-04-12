@@ -27,5 +27,12 @@ export default function validateData<
         }
     }
 
+    if( __DEBUG__ ) {
+
+        for(let name in data)
+            if( ! (name in dataDesc) )
+                throw new Error(`Unknown data ${name}`);
+    }
+
     return result;
 }

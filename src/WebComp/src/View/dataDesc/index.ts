@@ -1,4 +1,6 @@
 import StrictlyPositiveInt from "../validators/StrictlyPositiveInt";
+import Boolean             from "../validators/Boolean";
+import StringArray from "../validators/StringArray";
 
 export function dataDesc<T>(
                     defVal: T,
@@ -13,5 +15,7 @@ export function createDataDesc<T>(validator: (val: T) => boolean) {
 }
 
 export const descriptors = {
-    StrictlyPositiveInt: createDataDesc( StrictlyPositiveInt )
+    StrictlyPositiveInt: createDataDesc( StrictlyPositiveInt ),
+    Boolean            : createDataDesc( Boolean ),
+    StringArray        : createDataDesc( StringArray ),
 }

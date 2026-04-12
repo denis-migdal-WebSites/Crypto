@@ -1,13 +1,29 @@
 import { defineWebComponent, WithHooks } from "@WebCompLib"
 import html from "../../WebComp/src/View/ShadowTemplate/parsers/html";
 import { descriptors } from "../../WebComp/src/View/dataDesc";
+import { HooksProvider } from "../../WebComp/src/utils/Hooks";
 
-class MappedInputGridController extends WithHooks<{
-            verified?: (ok: boolean) => void
-        }> {
+type MIGCHooks = {
+    verified?: (ok: boolean) => void
+};
 
-    invite  : readonly string[] = ["H", "E", "L", "L", "O"];
-    expected: readonly string[] = ["H", "E", "L", "L", "O"];
+class MappedInputGridController extends WithHooks<MIGCHooks> {
+
+    labels  : readonly string[];
+    expected: readonly string[];
+
+    constructor(args: {
+        hooksProvider: HooksProvider<MIGCHooks>
+        data: {
+            labels  : readonly string[],
+            expected: readonly string[],
+        }
+    }) {
+        super(args);
+
+        this.labels   = args.data.labels  .map( e => e.toUpperCase());
+        this.expected = args.data.expected.map( e => e.toUpperCase());
+    }
 
     onInputsChanged(values: readonly string[]) {
         this.callHook("verified", this.verify(values));
@@ -19,12 +35,7 @@ class MappedInputGridController extends WithHooks<{
 }
 
 const MappedInputGrid = defineWebComponent(
-    ({hooksProvider, data}): MappedInputGridController => {
-        void data; //TODO: expected/labels.
-        return new MappedInputGridController({
-            hooksProvider
-        });
-    },
+    MappedInputGridController,
     {
         name    : "mapped-inputgrid",
         content : __LOAD_FILE__("./index.html"),
@@ -34,21 +45,25 @@ const MappedInputGrid = defineWebComponent(
             inputs: HTMLElement,
         },
         data: {
-            size: descriptors.StrictlyPositiveInt(1)
-        },
-        processDataChange(ctx) {
-            // TODO: requires render system to properly update ?
-                // style.setProperty(...)
-                // maxlength="1"...
-            console.error("data changed", ctx.data);
+            labels  : descriptors.StringArray([]),
+            expected: descriptors.StringArray([]),
+            ro      : descriptors.Boolean    (false),
         },
         attachController(ctx, controller) {
 
-            const invite = controller.invite;
+            const invite = controller.labels;
             const labels = new Array<HTMLElement     >(invite.length);
             const inputs = new Array<HTMLInputElement>(invite.length);
 
-            const size = ctx.data.size;
+            let size = 1;
+            for( let i = 0; i < invite.length; ++i) {
+                const exp_len = controller.expected[i].length;
+                const lab_len = controller.labels  [i].length;
+
+                if( exp_len > size) size = exp_len;
+                if( lab_len > size) size = lab_len;
+            }
+
             ctx.target.style.setProperty("--size", `${size}`);
 
             for(let i = 0; i < invite.length; ++i) {
@@ -56,6 +71,11 @@ const MappedInputGrid = defineWebComponent(
                 inputs[i] = html<HTMLInputElement>`<input maxlength=${size} />`;
 
                 const input = inputs[i];
+
+                if( ctx.data.ro ) {
+                    input.readOnly = true;
+                    input.value    = controller.expected[i];
+                }
 
                 input.addEventListener("focus", () => {
                     input.setSelectionRange(0, input.value.length);
