@@ -8,25 +8,26 @@ import { createViewHooksProvider, GetHandlers } from "./handlers";
 import ShadowTemplate, { ShadowTemplateArgs }   from "./ShadowTemplate";
 import { Root, ViewCallback, ViewCtx }          from "./ViewContext";
 
-type ControllerProviderCtx<T extends Hooks> = {
-        hooksProvider: HooksProvider<T>
+type ControllerProviderCtx<T extends Hooks, D extends Data> = {
+        hooksProvider: HooksProvider<T>,
+        data         : D
     };
 
-type ControllerProvider<T extends WithHooks>
-    = Constructible<T, [ControllerProviderCtx<GetHooks<T>>]>;
+export type ControllerProvider<T extends WithHooks, D extends Data>
+    = Constructible<T, NoInfer<[ControllerProviderCtx<GetHooks<T>, D>]>>;
 
 // fct
-export type ViewFactoryControllerProvider<C extends WithHooks|null = null>
+export type ViewFactoryControllerProvider<C extends WithHooks|null, D extends Data>
                     = C extends null
-                                    ? null
-                                    : ControllerProvider<NonNullable<C>>
+                        ? null
+                        : ControllerProvider<NonNullable<C>, D>
 
 /**
  * - configureController: called before attachController + when data changes.
  * - attachController: bind view -> controller.
  */
 export type ViewFactoryArgs<
-            C extends WithHooks|null = null,
+            C extends WithHooks|null,
             E extends Elems = {},
             D extends Data  = {}
     > = 
@@ -62,7 +63,7 @@ export default function createViewFactory<
                         E extends Elems = {},
                         D extends Data  = {}
                 >(
-                    Controller: ViewFactoryControllerProvider<C>,
+                    Controller: ViewFactoryControllerProvider<C, D>,
                     args      : ViewFactoryArgs<C, E, D>
                 ) {
 
@@ -101,7 +102,8 @@ export default function createViewFactory<
         if( Controller !== null ) {
 
             const ctrlCtx = {
-                hooksProvider: createViewHooksProvider(ctx, args)
+                hooksProvider: createViewHooksProvider(ctx, args),
+                data
             }
 
             controller = createInstance(Controller, ctrlCtx) as NonNullable<C>;

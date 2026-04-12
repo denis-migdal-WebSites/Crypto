@@ -6,7 +6,10 @@
     => requires state+update system... (how?)
 
 - data:
-    - listen attrs (=> call configureController)
+    - configureController
+        => better on creation...
+        => replace by ~onDataChanged...
+    - listen attrs (=> call configureController) [true/false] (?).
     - fonction pour des configurations auto (?).
     - séparer parsing / validations / defaults (?) [parsers vs validators].
 

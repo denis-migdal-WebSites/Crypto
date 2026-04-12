@@ -6,11 +6,11 @@ import { Data } from "./extractData";
 // ================== (High level)
 
 export default function defineWebComponent<
-                        C extends WithHooks|null = null,
+                        C extends WithHooks|null,
                         E extends Elems = {},
                         D extends Data  = {}
                 >(
-                    Controller: ViewFactoryControllerProvider<C>,
+                    Controller: ViewFactoryControllerProvider<C, D>,
                     args      : ViewFactoryArgs<C, E, D>
                               & {name: string}
                 ) {

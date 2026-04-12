@@ -9,8 +9,6 @@ class MappedInputGridController extends WithHooks<{
     invite  : readonly string[] = ["H", "E", "L", "L", "O"];
     expected: readonly string[] = ["H", "E", "L", "L", "O"];
 
-    size = 1;
-
     onInputsChanged(values: readonly string[]) {
         this.callHook("verified", this.verify(values));
     }
@@ -21,7 +19,12 @@ class MappedInputGridController extends WithHooks<{
 }
 
 const MappedInputGrid = defineWebComponent(
-    MappedInputGridController,
+    ({hooksProvider, data}): MappedInputGridController => {
+        void data; //TODO: expected/labels.
+        return new MappedInputGridController({
+            hooksProvider
+        });
+    },
     {
         name    : "mapped-inputgrid",
         content : __LOAD_FILE__("./index.html"),
@@ -33,12 +36,7 @@ const MappedInputGrid = defineWebComponent(
         data: {
             size: parsers.StrictlyPositiveInt(1),
         },
-        configureController(ctx, controller) {
-            //TODO: ultimement, qui doit être la source de vérité ?
-            controller.size = ctx.data.size;
-
-            console.warn("called");
-
+        configureController(_ctx, _controller) {
             // TODO: requires render system to properly update ?
                 // setProperty
                 // maxlength="1"...
@@ -49,7 +47,7 @@ const MappedInputGrid = defineWebComponent(
             const labels = new Array<HTMLElement     >(invite.length);
             const inputs = new Array<HTMLInputElement>(invite.length);
 
-            const size = controller.size;
+            const size = ctx.data.size;
             ctx.target.style.setProperty("--size", `${size}`);
 
             for(let i = 0; i < invite.length; ++i) {
