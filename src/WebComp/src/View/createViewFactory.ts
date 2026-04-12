@@ -21,6 +21,10 @@ export type ViewFactoryControllerProvider<C extends WithHooks|null = null>
                                     ? null
                                     : ControllerProvider<NonNullable<C>>
 
+/**
+ * - configureController: called before attachController + when data changes.
+ * - attachController: bind view -> controller.
+ */
 export type ViewFactoryArgs<
             C extends WithHooks|null = null,
             E extends Elems = {},
@@ -37,7 +41,8 @@ export type ViewFactoryArgs<
                     : GetHandlers<ViewCtx<E, D>, NonNullable<C>>)
             & ShadowTemplateArgs
             & {
-                attachController?: ViewCallback<ViewCtx<E, D>, [controller: Omit<C, "callHook">], void>
+                attachController?: ViewCallback<ViewCtx<E, D>, [controller: Omit<C, "callHook">], void>,
+                configureController?: ViewCallback<ViewCtx<E, D>, [controller: Omit<C, "callHook">], void>,
             }
     >
 
@@ -65,6 +70,10 @@ export default function createViewFactory<
 
     const attachController = "attachController" in args
                                 ? args.attachController
+                                : NULL_OP;
+    
+    const configureController = "configureController" in args
+                                ? args.configureController
                                 : NULL_OP;
     
     const extractElems = "elements" in args
@@ -96,9 +105,11 @@ export default function createViewFactory<
             }
 
             controller = createInstance(Controller, ctrlCtx) as NonNullable<C>;
-
-            attachController(ctx, controller);
         }
+
+        // execute it even if no controllers.
+        configureController(ctx, controller);
+        attachController(ctx, controller);
 
 
         return {

@@ -33,12 +33,18 @@ const MappedInputGrid = defineWebComponent(
         data: {
             size: parsers.StrictlyPositiveInt(1),
         },
+        configureController(ctx, controller) {
+            //TODO: ultimement, qui doit être la source de vérité ?
+            controller.size = ctx.data.size;
+
+            console.warn("called");
+
+            // TODO: requires render system to properly update ?
+                // setProperty
+                // maxlength="1"...
+        },
         attachController(ctx, controller) {
 
-            //TODO: move to configureController
-            controller.size = ctx.data.size;
-            //end of TODO
-            
             const invite = controller.invite;
             const labels = new Array<HTMLElement     >(invite.length);
             const inputs = new Array<HTMLInputElement>(invite.length);
