@@ -1,0 +1,31 @@
+:host(.ok) {
+    & > div {
+        background-color: green;
+
+        & input {
+            background-color: lightgreen;
+        }
+    }
+}
+
+:host {
+    --size: 1;
+}
+
+div {
+
+    & > :is([data-wc-id="labels"], [data-wc-id="inputs"]) > * {
+        box-sizing: border-box;
+        width     : calc( var(--size) * 10px + 10px );
+        /* 1ch ~= 10px? */
+        text-align: center;
+    }
+
+    & > [data-wc-id="labels"] > * {
+        display: inline-block;
+    }
+
+    & > [data-wc-id="inputs"] > * {
+        text-transform: uppercase;
+    }
+}

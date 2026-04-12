@@ -1,4 +1,8 @@
-import "../components/InputLine";
+import MappedInputGrid from "../components/MappedInputGrid";"../components/MappedInputGrid";
+
+document.body.append( new MappedInputGrid() );
+
+// ----
 
 import { defineWebComponent, extractElements, WithHooks } from "@WebCompLib"
 
