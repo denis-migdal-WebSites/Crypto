@@ -43,7 +43,7 @@ export type ViewFactoryArgs<
             & ShadowTemplateArgs
             & {
                 attachController?: ViewCallback<ViewCtx<E, D>, [controller: Omit<C, "callHook">], void>,
-                configureController?: ViewCallback<ViewCtx<E, D>, [controller: Omit<C, "callHook">], void>,
+                processDataChange?: ViewCallback<ViewCtx<E, D>, [controller: Omit<C, "callHook">], void>,
             }
     >
 
@@ -69,12 +69,12 @@ export default function createViewFactory<
 
     const template = new ShadowTemplate(args);
 
+    const processDataChange = "processDataChange" in args
+                                ? args.processDataChange
+                                : NULL_OP;
+
     const attachController = "attachController" in args
                                 ? args.attachController
-                                : NULL_OP;
-    
-    const configureController = "configureController" in args
-                                ? args.configureController
                                 : NULL_OP;
     
     const extractElems = "elements" in args
@@ -110,14 +110,13 @@ export default function createViewFactory<
         }
 
         // execute it even if no controllers.
-        configureController(ctx, controller);
-        attachController(ctx, controller);
-
+        // processDataChange(ctx, controller); - no initial calls.
+        attachController (ctx, controller);
 
         return {
-            target,
+            ctx,
             controller,
-            data
+            processDataChange
         } 
     }
 }

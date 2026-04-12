@@ -1,6 +1,7 @@
 import MappedInputGrid from "../components/MappedInputGrid";"../components/MappedInputGrid";
 
-document.body.append( new MappedInputGrid() );
+const elem = new MappedInputGrid();
+document.body.append( elem );
 
 // ----
 

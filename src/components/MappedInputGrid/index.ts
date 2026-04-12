@@ -36,10 +36,11 @@ const MappedInputGrid = defineWebComponent(
         data: {
             size: parsers.StrictlyPositiveInt(1),
         },
-        configureController(_ctx, _controller) {
+        processDataChange(ctx) {
             // TODO: requires render system to properly update ?
-                // setProperty
+                // style.setProperty(...)
                 // maxlength="1"...
+            console.warn("data changed", ctx.data);
         },
         attachController(ctx, controller) {
 

@@ -6,12 +6,9 @@
     => requires state+update system... (how?)
 
 - data:
-    - configureController
-        => better on creation...
-        => replace by ~onDataChanged...
-    - listen attrs (=> call configureController) [true/false] (?).
     - fonction pour des configurations auto (?).
     - séparer parsing / validations / defaults (?) [parsers vs validators].
+    - modifier directement en JS (i.e. sans parsing mais avec validation) ?
 
 - Option to choose when to initialize View...
 
