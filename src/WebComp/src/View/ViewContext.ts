@@ -1,4 +1,4 @@
-import { Data } from "./extractData";
+import { Data }  from "./validateData";
 import { Elems } from "./extractElements";
 
 export type Root = HTMLElement|DocumentFragment;

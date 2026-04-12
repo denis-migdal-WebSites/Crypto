@@ -8,6 +8,7 @@
 - data:
     - fonction pour des configurations auto (?).
     - séparer parsing / validations / defaults (?) [parsers vs validators].
+        - validateData()
     - modifier directement en JS (i.e. sans parsing mais avec validation) ?
 
 - Option to choose when to initialize View...

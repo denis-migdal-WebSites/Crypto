@@ -1,6 +1,6 @@
 import { defineWebComponent, WithHooks } from "@WebCompLib"
 import html from "../../WebComp/src/View/ShadowTemplate/parsers/html";
-import parsers from "../../WebComp/src/View/parsers";
+import { descriptors } from "../../WebComp/src/View/dataDesc";
 
 class MappedInputGridController extends WithHooks<{
             verified?: (ok: boolean) => void
@@ -34,13 +34,13 @@ const MappedInputGrid = defineWebComponent(
             inputs: HTMLElement,
         },
         data: {
-            size: parsers.StrictlyPositiveInt(1),
+            size: descriptors.StrictlyPositiveInt(1)
         },
         processDataChange(ctx) {
             // TODO: requires render system to properly update ?
                 // style.setProperty(...)
                 // maxlength="1"...
-            console.warn("data changed", ctx.data);
+            console.error("data changed", ctx.data);
         },
         attachController(ctx, controller) {
 

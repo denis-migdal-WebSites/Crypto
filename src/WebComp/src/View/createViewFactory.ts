@@ -1,8 +1,8 @@
 import createInstance, { Constructible } from "../utils/createInstance";
 import { Hooks, HooksProvider }          from "../utils/Hooks";
 import WithHooks, { GetHooks }           from "../utils/WithHooks";
-import extractData, { Data, DataDesc } from "./extractData";
 
+import validateData, { Data, DataDesc }         from "./validateData";
 import extractElements, { Elems, ElemsDesc }    from "./extractElements";
 import { createViewHooksProvider, GetHandlers } from "./handlers";
 import ShadowTemplate, { ShadowTemplateArgs }   from "./ShadowTemplate";
@@ -22,10 +22,6 @@ export type ViewFactoryControllerProvider<C extends WithHooks|null, D extends Da
                         ? null
                         : ControllerProvider<NonNullable<C>, D>
 
-/**
- * - configureController: called before attachController + when data changes.
- * - attachController: bind view -> controller.
- */
 export type ViewFactoryArgs<
             C extends WithHooks|null,
             E extends Elems = {},
@@ -81,15 +77,15 @@ export default function createViewFactory<
             ? (target: Root) => extractElements(target, args.elements!)
             : NULL_OP_OBJ<E>;
 
-    const extractD = "data" in args
-            ? (target: HTMLElement, overrideData: Partial<D>) => extractData(target, args.data!, overrideData)
+    const validate = "data" in args
+            ? (data: Partial<D>) => validateData(data, args.data!)
             : NULL_OP_OBJ<D>;
     
-    return (target: HTMLElement, overrideData: Partial<D> = {}) => {
+    return (target: HTMLElement, opts: Partial<D> = {}) => {
 
         const root     = template.createShadowRoot(target);
         const elements = extractElems(root);
-        const data     = extractD(target, overrideData);
+        const data     = validate(opts);
 
         const ctx = {
             target,
@@ -116,75 +112,10 @@ export default function createViewFactory<
         return {
             ctx,
             controller,
-            processDataChange
+            setData(data: Partial<D>) {
+                ctx.data = validate(data);
+                processDataChange(ctx, controller);
+            }
         } 
     }
 }
-
-
-/**
-
-import { HookCaller } from "../Hooks2";
-
-type AH = {
-    "foo"?: (this: null, i: number) => void
-};
-
-class A {
-
-    readonly callHook: HookCaller<AH>;
-
-    // NO_HOOKS quite hard to create (?).
-    constructor(args: {hooksProvider: HooksProvider<A>}) {
-        this.callHook = args.hooksProvider(this);
-
-        const rest = this.callHook("foo", 24);
-        void rest; // test
-    }
-}
-
-// for test
-function injectElement() {
-    const element = document.createElement("test-test");
-
-    document.body.append(element);
-
-    return element;
-}
-
-{
-    const createView = createViewFactory(
-            A,
-            //(args): A => new A(args),
-            {
-                content : "<div data-wc-id='ok'>Hell no!</div>",
-                style   : "div { background-color: orange }",
-                elements: {
-                    ok: HTMLDivElement
-                },
-                attachController(_ctx, _ctler) {
-                    _ctx.elements.ok;
-                    console.warn("Controller attached...");
-                },
-                onFoo(ctx, i) {
-                    console.warn("foo :)", ctx, i);
-                }
-        })
-
-    const view = createView( injectElement() );
-
-    view.controller.callHook("foo", 34);
-}
-{
-    const createView = createViewFactory(
-            null,
-            {
-            }
-        )
-
-    const view = createView( injectElement() );
-
-    view.controller;
-}
-
-/**/

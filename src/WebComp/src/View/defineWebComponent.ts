@@ -1,7 +1,7 @@
 import WithHooks     from "../utils/WithHooks";
 import { type Elems} from "./extractElements";
 import createViewFactory, { ViewFactoryArgs, ViewFactoryControllerProvider } from "./createViewFactory";
-import { Data, HTMLName2JSName, JSName2HTMLName } from "./extractData";
+import { Data, WC_ATTRNAME } from "./validateData";
 
 // ================== (High level)
 
@@ -9,6 +9,8 @@ let id = 0;
 function genId() {
     return id++;
 }
+
+const EMPTY_OBJ = {};
 
 export default function defineWebComponent<
                         C extends WithHooks|null,
@@ -23,8 +25,8 @@ export default function defineWebComponent<
     const createView = createViewFactory( Controller, args );
 
     let to_listen: readonly string[] = [];
-    if( args.data !== undefined && args.processDataChange !== undefined )
-        to_listen = [...Object.keys(args.data!)].map(e => JSName2HTMLName(e));
+    if( args.processDataChange !== undefined )
+        to_listen = ["data-wc"];
 
     class WebComponent extends HTMLElement {
         readonly view;
@@ -32,46 +34,45 @@ export default function defineWebComponent<
 
         readonly _id = genId();
 
-        private initialAttrsToConsume: number = 0;
+        private needToConsume: boolean = false;
 
-        constructor(data: Partial<D> = {}) {
+        constructor(data: Partial<D> = EMPTY_OBJ) {
             super();
 
-            if( to_listen.length !== 0 )
-                for(let i = 0; i < to_listen.length; ++i)
-                    if( this.hasAttribute(to_listen[i]) === true)
-                        ++this.initialAttrsToConsume;
+            this.needToConsume =   to_listen.length !== 0
+                                && data === EMPTY_OBJ
+                                && this.hasAttribute(WC_ATTRNAME);
+
+            if( this.needToConsume )
+                data = JSON.parse( this.getAttribute(WC_ATTRNAME)! );
+            
+            //TODO: validate...
 
             this.view       = createView(this, data);
             this.controller = this.view.controller;
         }
 
-        attributeChangedCallback(name: string, oldVal: string|null, newVal: string|null) {
-            
+        static observedAttributes = to_listen;
+
+        attributeChangedCallback(_name: string, oldVal: string|null, newVal: string|null) {
+
+            // only data-wc listened.
+
             // because JS is stupid, really, really, really, stupid...
-            if( this.initialAttrsToConsume !== 0) {
-                --this.initialAttrsToConsume;
+            if( this.needToConsume ) {
+                this.needToConsume = false;
                 return;
             }
 
-            console.warn("X", this._id, this.dataset["wcSize"]);
-            console.error("Callback?", this._id, name, oldVal, newVal);
-
             if( oldVal === newVal ) return; // no changes.
 
-            const realname = HTMLName2JSName(name);
-            const parsed = args.data![realname](newVal);
+            let data = {};
+            if( newVal !== undefined )
+                data = JSON.stringify(newVal);
 
-            // @ts-ignore
-            this.view.ctx.data[realname] = parsed;
-
-            this.view.processDataChange(this.view.ctx, this.view.controller);
+            this.view.setData( data );
         }
     }
-
-    if( to_listen.length !== 0 )
-        // @ts-ignore
-        WebComponent.observedAttributes = to_listen;
 
     customElements.define(args.name, WebComponent);
 
