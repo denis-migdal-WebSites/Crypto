@@ -1,11 +1,13 @@
+import { Data } from "./extractData";
 import { Elems } from "./extractElements";
 
 export type Root = HTMLElement|DocumentFragment;
 
-export type ViewCtx<E extends Elems = Elems> = {
+export type ViewCtx<E extends Elems = Elems, D extends Data = Data> = {
     target  : HTMLElement,
     root    : Root,
-    elements: E
+    elements: E,
+    data    : D
 };
 
 export type ViewCallback<

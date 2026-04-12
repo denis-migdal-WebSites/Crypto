@@ -1,22 +1,32 @@
 import WithHooks     from "../utils/WithHooks";
 import { type Elems} from "./extractElements";
 import createViewFactory, { ViewFactoryArgs, ViewFactoryControllerProvider } from "./createViewFactory";
+import { Data } from "./extractData";
 
 // ================== (High level)
 
 export default function defineWebComponent<
                         C extends WithHooks|null = null,
-                        E extends Elems = {}
+                        E extends Elems = {},
+                        D extends Data  = {}
                 >(
                     Controller: ViewFactoryControllerProvider<C>,
-                    args      : ViewFactoryArgs<C, E> & {name: string}
+                    args      : ViewFactoryArgs<C, E, D>
+                              & {name: string}
                 ) {
 
     const createView = createViewFactory( Controller, args );
 
     class WebComponent extends HTMLElement {
-        readonly view       = createView(this);
-        readonly controller = this.view.controller;
+        readonly view;
+        readonly controller: C;
+
+        constructor(data: Partial<D> = {}) {
+            super();
+
+            this.view       = createView(this, data);
+            this.controller = this.view.controller;
+        }
     }
 
     customElements.define(args.name, WebComponent);

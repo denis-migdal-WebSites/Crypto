@@ -1,5 +1,6 @@
 import { defineWebComponent, WithHooks } from "@WebCompLib"
 import html from "../../WebComp/src/View/ShadowTemplate/parsers/html";
+import parsers from "../../WebComp/src/View/parsers";
 
 class MappedInputGridController extends WithHooks<{
             verified?: (ok: boolean) => void
@@ -22,14 +23,21 @@ class MappedInputGridController extends WithHooks<{
 const MappedInputGrid = defineWebComponent(
     MappedInputGridController,
     {
-        name    : "mapped-inputline",
+        name    : "mapped-inputgrid",
         content : __LOAD_FILE__("./index.html"),
         style   : __LOAD_FILE__("./index.css"),
         elements: {
             labels: HTMLElement,
             inputs: HTMLElement,
         },
+        data: {
+            size: parsers.StrictlyPositiveInt(1),
+        },
         attachController(ctx, controller) {
+
+            //TODO: move to configureController
+            controller.size = ctx.data.size;
+            //end of TODO
             
             const invite = controller.invite;
             const labels = new Array<HTMLElement     >(invite.length);

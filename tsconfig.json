@@ -34,7 +34,7 @@
         "useUnknownInCatchVariables"        : true,
         "noFallthroughCasesInSwitch"        : true,
         "exactOptionalPropertyTypes"        : true,
-        "noPropertyAccessFromIndexSignature": true,
+        "noPropertyAccessFromIndexSignature": false,
         "noUncheckedSideEffectImports"      : true
 
     }
