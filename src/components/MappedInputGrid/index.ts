@@ -41,8 +41,7 @@ const MappedInputGrid = defineWebComponent(
         content : __LOAD_FILE__("./index.html"),
         style   : __LOAD_FILE__("./index.css"),
         elements: {
-            labels: HTMLElement,
-            inputs: HTMLElement,
+            grid: HTMLElement,
         },
         data: {
             labels  : descriptors.StringArray([]),
@@ -52,8 +51,6 @@ const MappedInputGrid = defineWebComponent(
         attachController(ctx, controller) {
 
             const invite = controller.labels;
-            const labels = new Array<HTMLElement     >(invite.length);
-            const inputs = new Array<HTMLInputElement>(invite.length);
 
             let size = 1;
             for( let i = 0; i < invite.length; ++i) {
@@ -66,11 +63,15 @@ const MappedInputGrid = defineWebComponent(
 
             ctx.target.style.setProperty("--size", `${size}`);
 
-            for(let i = 0; i < invite.length; ++i) {
-                labels[i] = html`<span>${invite[i]}</span>`;
-                inputs[i] = html<HTMLInputElement>`<input maxlength=${size} />`;
+            const elements = new Array<HTMLElement>(invite.length);
+            const inputs   = new Array<HTMLInputElement>(invite.length);
 
-                const input = inputs[i];
+            for(let i = 0; i < invite.length; ++i) {
+
+                const element = elements[i] = document.createElement("span");
+
+                const label = html`<span>${invite[i]}</span>`;
+                const input = inputs[i] = html<HTMLInputElement>`<input maxlength=${size} />`;
 
                 if( ctx.data.ro ) {
                     input.readOnly = true;
@@ -88,20 +89,22 @@ const MappedInputGrid = defineWebComponent(
                     }));
 
                     if( input.value.length >= size) {
-                        const nextElement = input.nextElementSibling as HTMLInputElement|null ;
 
-                        if( nextElement === null ) {
+                        const nextParent = input.parentElement!.nextElementSibling;
+                        if( nextParent === null ) {
                             input.blur();
                             return;
                         }
-
+                        const nextElement = nextParent.lastElementChild as HTMLInputElement;
+                        
                         nextElement.focus();
                     }
                 });
+
+                element.append(label, input);
             }
 
-            ctx.elements.labels.replaceChildren(...labels);
-            ctx.elements.inputs.replaceChildren(...inputs);
+            ctx.elements.grid.replaceChildren(...elements);
         },
         onVerified(ctx, ok) {
             ctx.target.classList.toggle("ok", ok);

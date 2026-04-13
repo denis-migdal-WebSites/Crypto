@@ -10,22 +10,29 @@
 
 :host {
     --size: 1;
+    
+    display: block;
 }
 
-div {
+[data-wc-id="grid"] {
 
-    & > :is([data-wc-id="labels"], [data-wc-id="inputs"]) > * {
+    & > * {
+        display: inline-block;
         box-sizing: border-box;
         width     : calc( var(--size) * 10px + 10px );
         /* 1ch ~= 10px? */
-        text-align: center;
-    }
 
-    & > [data-wc-id="labels"] > * {
-        display: inline-block;
-    }
+        & > :is(span, input) {
+            box-sizing: border-box;
+            text-align: center;
+            width: 100%;
+        }
 
-    & > [data-wc-id="inputs"] > * {
-        text-transform: uppercase;
+        & > span {
+            display: inline-block;
+        }
+        & > input {
+            text-transform: uppercase;
+        }
     }
 }
