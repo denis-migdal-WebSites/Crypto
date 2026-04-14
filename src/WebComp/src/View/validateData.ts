@@ -1,10 +1,4 @@
-export type Data = Record<string, any>;
-export type DataDesc<T extends Data> = {
-    [K in keyof T]: {
-        default   : T[K],
-        validator?: NoInfer<(value: T[K]) => boolean>
-    }
-}
+import { Data, DataDesc } from "../utils/Properties";
 
 export const WC_ATTRNAME = "data-wc";
 
@@ -22,8 +16,8 @@ export default function validateData<
         result[name] = data[name] ?? dataDesc[name].default;
 
         if( __DEBUG__ ) {
-            if( dataDesc[name].validator && ! dataDesc[name].validator(result[name]) )
-                throw new Error(`Validation of ${name} failed: ${result[name]} does not match constraint ${dataDesc[name].validator.name}`);
+            if( dataDesc[name].validate && ! dataDesc[name].validate(result[name]) )
+                throw new Error(`Validation of ${name} failed: ${result[name]} does not match constraint ${dataDesc[name].validate.name}`);
         }
     }
 

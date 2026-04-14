@@ -1,7 +1,8 @@
 import WithHooks     from "../utils/WithHooks";
 import { type Elems} from "./resolveElements";
 import createViewFactory, { ViewFactoryArgs, ViewFactoryControllerProvider } from "./createViewFactory";
-import { Data, WC_ATTRNAME } from "./validateData";
+import { WC_ATTRNAME } from "./validateData";
+import { Data } from "../utils/Properties";
 
 // ================== (High level)
 

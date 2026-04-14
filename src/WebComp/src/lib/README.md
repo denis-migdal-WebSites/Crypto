@@ -1,3 +1,24 @@
+View:
+/!\ besoins avant généricité !
+- expose
+    - update(X = null) [bypass]
+- stable
+    - content/style : optional, opinionated.
+    - elements : declarative.
+    - data     : declarative.
+=> découpages only utiles si reuse... (chartjs++ / shared ctrler/data...)
+- uiX : ~= declare sub-component init/update.
+    - ui => global called first.
+        ~> else delegate parent (?)
+- onXXXX     : hooks externes => events.
+    - onStateChanged() => default requestUpdate().
+    - onXXXX => autres events (e.g. animations).
+- processXXX : hooks internes.
+    - process => global (?) called first (?).
+        ~> else delegate parent (?)
+    - processDataChange 
+    - processUiUpdateRequest (~ strategy ?)
+
 - [Passive]View(target):
     - no logic, only DOM manipulations.
     - instantiate the ShadowRoot

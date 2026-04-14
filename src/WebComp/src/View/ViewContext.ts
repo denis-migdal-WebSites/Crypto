@@ -1,4 +1,4 @@
-import { Data }  from "./validateData";
+import { Data } from "../utils/Properties";
 import { Elems } from "./resolveElements";
 
 export type Root = HTMLElement|DocumentFragment;

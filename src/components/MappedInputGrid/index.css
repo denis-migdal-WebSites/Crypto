@@ -10,7 +10,7 @@
 
 :host {
     --size: 1;
-    
+
     display: block;
 }
 
@@ -19,7 +19,7 @@
     & > * {
         display: inline-block;
         box-sizing: border-box;
-        width     : calc( var(--size) * 10px + 10px );
+        width     : calc( var(--size) * 8px + 14px );
         /* 1ch ~= 10px? */
 
         & > :is(span, input) {

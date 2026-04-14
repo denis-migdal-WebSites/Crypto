@@ -4,13 +4,20 @@ import StringArray from "../validators/StringArray";
 
 export function dataDesc<T>(
                     defVal: T,
-                    validator: NoInfer<(val: T) => boolean>) {
+                    validate: NoInfer<(val: T) => boolean>) {
 
-    return {default: defVal, validator};
+    return {
+        get: (value: T|undefined) => {
+            if( value === undefined )
+                return defVal;
+
+            return value;
+        },
+        validate
+    };
 }
 
 export function createDataDesc<T>(validator: (val: T) => boolean) {
-
     return (defVal: T) => dataDesc(defVal, validator);
 }
 

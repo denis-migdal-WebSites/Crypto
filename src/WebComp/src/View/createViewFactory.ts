@@ -2,11 +2,12 @@ import createInstance, { Constructible } from "../utils/createInstance";
 import { Hooks, HooksProvider }          from "../utils/Hooks";
 import WithHooks, { GetHooks }           from "../utils/WithHooks";
 
-import validateData, { Data, DataDesc }         from "./validateData";
+import validateData                             from "./validateData";
 import resolveElements, { Elems, ElemsDesc }    from "./resolveElements";
 import { createViewHooksProvider, GetHandlers } from "./handlers";
 import ShadowTemplate, { ShadowTemplateArgs }   from "./ShadowTemplate";
 import { Root, ViewCallback, ViewCtx }          from "./ViewContext";
+import { Data, DataDesc } from "../utils/Properties";
 
 type ControllerProviderCtx<T extends Hooks, D extends Data> = {
         hooksProvider: HooksProvider<T>,
