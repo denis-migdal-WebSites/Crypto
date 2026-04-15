@@ -1,7 +1,6 @@
 export type Data = Record<string, any>;
 export type DataDesc<T extends Data> = {
     [K in keyof T]: {
-        //TODO: reinforce, cf notes?
         get      : (value: T[K]|undefined) => T[K],
         validate?: NoInfer<(value: T[K])   => boolean>
     }
@@ -15,8 +14,8 @@ type ProxyValues<T extends Record<string, any>> = T & {
 };
 
 type RootTarget<T extends Record<string, any>> = {
+    
     addListener(callback: (src: unknown) => void): void;
-    //TODO: secure type.
     updateProperties(values: Partial<T>): void;
 
     createWritableReference(): ProxyValues<T>

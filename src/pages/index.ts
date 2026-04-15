@@ -2,7 +2,7 @@ import { resolveElements } from "@WebCompLib"
 
 import MappedInputGrid from "../components/MappedInputGrid";
 
-import "../WebComp/src/utils/Properties";
+import "../WebComp/src/utils/Properties/test";
 
 /***/
 

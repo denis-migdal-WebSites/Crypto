@@ -1,6 +1,6 @@
 import { defineWebComponent, WithHooks } from "@WebCompLib"
 import html from "../../WebComp/src/View/ShadowTemplate/parsers/html";
-import { descriptors } from "../../WebComp/src/View/dataDesc";
+import { descriptors } from "../../WebComp/src/utils/dataDesc";
 import { HooksProvider } from "../../WebComp/src/utils/Hooks";
 import createDataClass from "../../WebComp/src/utils/Properties";
 
@@ -24,6 +24,7 @@ class MappedInputGridController extends WithHooks<MIGCHooks> {
         data: {
             labels  : readonly string[],
             expected: readonly string[],
+            ro     ?: boolean
         }
     }) {
         super(args);
@@ -31,13 +32,15 @@ class MappedInputGridController extends WithHooks<MIGCHooks> {
         //TODO...
         const data = {
             labels  : args.data.labels  .map( e => e.toUpperCase()),
-            expected: args.data.expected.map( e => e.toUpperCase())
+            expected: args.data.expected.map( e => e.toUpperCase()),
+            ro      : args.data.ro!,//TODO...
         };
 
         // no need for special things => not listened...
         this.data = MIGCDataClass(data);
     }
 
+    //TODO: listen
     onInputsChanged(values: readonly string[]) {
         this.callHook("verified", this.verify(values));
     }
@@ -48,24 +51,33 @@ class MappedInputGridController extends WithHooks<MIGCHooks> {
     }
 }
 
+defineWebComponent(null, {
+    name: "e-e",
+});
+
 const MappedInputGrid = defineWebComponent(
     MappedInputGridController,
     {
         name    : "mapped-inputgrid",
-        content : __LOAD_FILE__("./index.html"),
-        style   : __LOAD_FILE__("./index.css"),
+        template: {
+            content : __LOAD_FILE__("./index.html"),
+            style   : __LOAD_FILE__("./index.css"),
+        },
         elements: {
             grid: HTMLElement,
         },
-        data: {
-            labels  : descriptors.StringArray([]),
-            expected: descriptors.StringArray([]),
-            ro      : descriptors.Boolean    (false),
+        on: {
+            verified(ctx, ok) {
+                ctx.target.classList.toggle("ok", ok);
+            },
         },
         attachController(ctx, controller) {
 
             const labels   = controller.data.labels;
             const expected = controller.data.expected;
+            const isRO     = controller.data.ro;
+
+            console.warn("IS_RO", isRO);
 
             let size = 1;
             for( let i = 0; i < labels.length; ++i) {
@@ -88,7 +100,7 @@ const MappedInputGrid = defineWebComponent(
                 const label = html`<span>${labels[i]}</span>`;
                 const input = inputs[i] = html<HTMLInputElement>`<input maxlength=${size} />`;
 
-                if( ctx.data.ro ) {
+                if( isRO ) {
                     input.readOnly = true;
                     input.value    = expected[i];
                 }
@@ -121,9 +133,6 @@ const MappedInputGrid = defineWebComponent(
 
             ctx.elements.grid.replaceChildren(...elements);
         },
-        onVerified(ctx, ok) {
-            ctx.target.classList.toggle("ok", ok);
-        }
     })
 
 export default MappedInputGrid;

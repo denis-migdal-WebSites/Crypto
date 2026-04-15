@@ -1,10 +1,33 @@
-1. Simple state/data (build proxy + callback + expose + descriptor + WithData).
-    /!\ notion de vue...
-    .getVue(callback, callback) [?].
+0. Séparer / Découper en composables...
+    1. ResolveElements (pas de controller).
+        a. make it 2 steps.
+        b. instance vs function vs klass.
+        - step1 : placeholder + filter.
+            - fct car also be an assertFct.
+            - pas de controller.
+            - pas de data => ce n'est pas le moment d'init.
+                => si besoin, utiliser initUi.
+        - step2 : verify types.
+    4. CreateController (target, hooks) => extractViewData(target).
+        a. default function (extract data) - use si pas classe.
+        - si class, default function.
+        -> pas encore init mais hooks "fonctionnels" (?).
+    5. initUi system...
+        a. TODO (ofc)
+    => indep + composition...
+    6. replace old by state reaction...
+        - listenExcept vs listenAll().
+        - inputs (= value).
+        - verify -> computed...
+
+1. Simple state/data
+    - WithData(fct)
+    - listen fct => improve + createWritableReference + listenExternal.
 2. Placeholders
 
 3. render (+ ui components)
 4. Sep. ui data (needs) (?).
+5. Remove hooks (or decorator?).
 
 =================================
 - placeholder
@@ -20,23 +43,8 @@
         - ou ~ split (?).
 
 - state:
-    -> impl (cf notes)
-        => layers (ext vs internal updates) (?)
-            ~> getStateProxy (???)
-                => event origin
-                => callback1
-                => callback2
-        -> object with properties + default + checks + computed (how?).
-        -> onChangeCallback <= with last change (props/obj).
-        -> setProperties()/updateProperties().
-        => signals = after...
-    - state (simple) vs events (cumul - consommation) e.g. animation.
-        - onStateChange (state)
-            -> (whatChanged) <- used by Signal after ?
-        - onXXXX autres events.
-    - full notify
-        => partial notification complex si deferred.
-        => "si a changé" => i.e. par rapport à quel état précédent ?
+    -> get() => lazy computed+cache + lazy setProperties().
+    -> state vs hooks.
 
 - render:
     -> attachController => initUi
@@ -62,10 +70,11 @@
     => references
     => composite
 
-
 Principes
 =========
 
 - resolveElements pour un accès sécure.
 - éviter manipulation attributs sur le DOM.
 - éviter de dépendre de l'upgrade d'un parent/enfant.
+
+- savoir "quelle propriété a changée" difficile si defer (changé par rapport à quel état précédent) ?

@@ -1,6 +1,6 @@
-import StrictlyPositiveInt from "../validators/StrictlyPositiveInt";
-import Boolean             from "../validators/Boolean";
-import StringArray from "../validators/StringArray";
+import StrictlyPositiveInt from "./validators/StrictlyPositiveInt";
+import Boolean             from "./validators/Boolean";
+import StringArray         from "./validators/StringArray";
 
 export function dataDesc<T>(
                     defVal: T,

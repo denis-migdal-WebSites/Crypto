@@ -3,5 +3,5 @@
     "liveServer.settings.root": "/dist/dev/",
 
     "deno.enable"     : true,
-    "deno.enablePaths": ["./tests"]
+    "deno.enablePaths": ["./tests"],
 }

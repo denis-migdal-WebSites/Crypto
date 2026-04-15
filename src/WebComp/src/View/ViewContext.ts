@@ -1,13 +1,11 @@
-import { Data } from "../utils/Properties";
 import { Elems } from "./resolveElements";
 
 export type Root = HTMLElement|DocumentFragment;
 
-export type ViewCtx<E extends Elems = Elems, D extends Data = Data> = {
+export type ViewCtx<E extends Elems = Elems> = {
     target  : HTMLElement,
     root    : Root,
-    elements: E,
-    data    : D
+    elements: E
 };
 
 export type ViewCallback<
