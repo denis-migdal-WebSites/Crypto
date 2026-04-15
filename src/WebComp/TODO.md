@@ -15,16 +15,8 @@
     5. initUi system...
         a. TODO (ofc)
     => indep + composition...
-    6. replace old by state reaction...
-        - listenExcept vs listenAll().
-        - inputs (= value).
-        - verify -> computed...
 
-1. Simple state/data
-    - WithData(fct)
-    - listen fct => improve + createWritableReference + listenExternal.
 2. Placeholders
-
 3. render (+ ui components)
 4. Sep. ui data (needs) (?).
 5. Remove hooks (or decorator?).
@@ -34,17 +26,6 @@
     - replace elem by callback (data) => elem.
     - data is given to extractElements.
     - also in createView.
-
-- data
-    - split into composable fonctions...
-        - StrictlyPositive(Int(Default("2"))).
-        - Array(String(Default("")))*
-    - data vs ui-data (besoin de la séparation ?).
-        - ou ~ split (?).
-
-- state:
-    -> get() => lazy computed+cache + lazy setProperties().
-    -> state vs hooks.
 
 - render:
     -> attachController => initUi
