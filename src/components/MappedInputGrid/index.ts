@@ -1,52 +1,9 @@
 import { defineWebComponent } from "@WebCompLib"
 import html from "../../WebComp/src/View/ShadowTemplate/parsers/html";
-import createPropertiesFactory from "../../WebComp/src/utils/Properties/createPropertiesFactory";
-import Value from "../../WebComp/src/utils/Properties/PropertyTypes/Value";
-import { Validated } from "../../WebComp/src/utils/Properties/Validation";
-import { isString, isBoolean, isArrayOf } from "../../WebComp/src/utils/Properties/Validation/types";
-import Computed from "../../WebComp/src/utils/Properties/PropertyTypes/Computed";
 import { onPropertiesChange } from "../../WebComp/src/utils/Properties/PropertiesListeners";
+import MappedInputGridController from "./controller";
 
-function checkAnswers(ctx: {
-                                expected: readonly string[],
-                                answers: readonly string[]
-                            }) {
-
-    return ctx.expected.every( (_,i) => ctx.expected[i].toUpperCase() === ctx.answers[i].toUpperCase() );
-    
-}
-
-const StringArray = Validated( Value([] as readonly string[]), isArrayOf(isString) );
-
-const createMIGCData = createPropertiesFactory({
-    labels  : StringArray,
-    answers : StringArray,
-    expected: StringArray,
-    ro      : Validated( Value(false), isBoolean ),
-    ok      : Computed( checkAnswers )
-});
-
-class MappedInputGridController /*extends WithHooks<MIGCHooks>*/ {
-
-    readonly data: ReturnType<typeof createMIGCData>;
-
-    constructor(args: {
-        /*hooksProvider: HooksProvider<MIGCHooks>*/
-        data: {
-            labels  : readonly string[],
-            expected: readonly string[],
-            ro     ?: boolean
-        }
-    }) {
-        this.data = createMIGCData(args.data);
-    }
-}
-
-defineWebComponent(null, {
-    name: "e-e",
-});
-
-const MappedInputGrid = defineWebComponent(
+export default defineWebComponent(
     MappedInputGridController,
     {
         name    : "mapped-inputgrid",
@@ -59,12 +16,12 @@ const MappedInputGrid = defineWebComponent(
         },
         attachController(ctx, controller) {
 
-            const labels   = controller.data.labels;
-            const expected = controller.data.expected;
-            const isRO     = controller.data.ro;
+            const labels   = controller.properties.labels;
+            const expected = controller.properties.expected;
+            const isRO     = controller.properties.ro;
 
-            onPropertiesChange( controller.data, () => {
-                ctx.target.classList.toggle("ok", controller.data.ok);
+            onPropertiesChange( controller.properties, () => {
+                ctx.target.classList.toggle("ok", controller.properties.ok);
             });
 
             let size = 1;
@@ -99,7 +56,7 @@ const MappedInputGrid = defineWebComponent(
 
                 input.addEventListener("input", () => {
 
-                    controller.data.answers = inputs.map( e => {
+                    controller.properties.answers = inputs.map( e => {
                         return e.value.toUpperCase();
                     });
 
@@ -121,6 +78,4 @@ const MappedInputGrid = defineWebComponent(
 
             ctx.elements.grid.replaceChildren(...elements);
         },
-    })
-
-export default MappedInputGrid;
+    });

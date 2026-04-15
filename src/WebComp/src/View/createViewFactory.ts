@@ -1,6 +1,6 @@
 import createInstance, { Constructible } from "../utils/createInstance";
-import { Hooks, HooksProvider }          from "../utils/Hooks";
-import WithHooks, { GetHooks }           from "../utils/WithHooks";
+import { Hooks, HooksProvider }          from "../utils/Hooks/Hooks";
+import WithHooks, { GetHooks }           from "../utils/Hooks/WithHooks";
 
 import resolveElements, { Elems, ElemsDesc }    from "./resolveElements";
 import { createViewHooksProvider, GetHandlers } from "./handlers";
@@ -11,12 +11,11 @@ import { NULL_OBJ, NULL_OP } from "../utils/NullObjects";
 type Data = Record<string, any>;
 
 type ControllerProviderCtx<T extends Hooks, D extends Data> = {
-        hooksProvider: HooksProvider<T>,
-        data         : D
-    };
+        hooksProvider: HooksProvider<T>
+    } & D;
 
 export type ControllerProvider<T extends object, D extends Data>
-    = Constructible<T & {readonly data?: D}, NoInfer<[ControllerProviderCtx<GetHooks<T>, D>]>>;
+    = Constructible<T & {readonly properties?: D}, NoInfer<[ControllerProviderCtx<GetHooks<T>, D>]>>;
 
 // fct
 export type ViewFactoryControllerProvider<C extends object|null, D extends Data>
@@ -79,10 +78,7 @@ export default function createViewFactory<
 
         if( Controller !== null ) {
 
-            const ctrlCtx = {
-                data         : opts,
-                //TODO: data -> target
-            }
+            const ctrlCtx = { ...opts};
 
             // likely a WithHooks...
             if( "callHook" in Controller.prototype ) {

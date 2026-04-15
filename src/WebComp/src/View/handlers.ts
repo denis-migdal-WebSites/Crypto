@@ -1,5 +1,5 @@
-import { Hooks, HooksProvider, ReturnOf_never, ReturnOf_void } from "../utils/Hooks";
-import WithHooks, { GetHooks }   from "../utils/WithHooks";
+import { Hooks, HooksProvider, ReturnOf_never, ReturnOf_void } from "../utils/Hooks/Hooks";
+import WithHooks, { GetHooks }   from "../utils/Hooks/WithHooks";
 import { ViewCallback, ViewCtx } from "./ViewContext";
 
 type AsHandlers<Ctx extends ViewCtx, T extends Hooks> = {
