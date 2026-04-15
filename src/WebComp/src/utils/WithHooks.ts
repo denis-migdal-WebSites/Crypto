@@ -11,6 +11,6 @@ export default class WithHooks<T extends Hooks = Hooks> {
     }
 }
 
-export type GetHooks<T extends WithHooks>
+export type GetHooks<T>
     = T extends WithHooks<infer U> ? U : never;
     //= T["callHook"] extends HookCaller<infer U> ? U : never;

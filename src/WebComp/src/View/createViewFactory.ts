@@ -15,17 +15,17 @@ type ControllerProviderCtx<T extends Hooks, D extends Data> = {
         data         : D
     };
 
-export type ControllerProvider<T extends WithHooks, D extends Data>
+export type ControllerProvider<T extends object, D extends Data>
     = Constructible<T & {readonly data?: D}, NoInfer<[ControllerProviderCtx<GetHooks<T>, D>]>>;
 
 // fct
-export type ViewFactoryControllerProvider<C extends WithHooks|null, D extends Data>
+export type ViewFactoryControllerProvider<C extends object|null, D extends Data>
                     = C extends null
                         ? null
                         : ControllerProvider<NonNullable<C>, D>
 
 export type ViewFactoryArgs<
-            C extends WithHooks|null,
+            C extends object|null,
             E extends Elems = {},
     > = 
         {
@@ -46,7 +46,7 @@ const FCT_NULL_OBJ = <T>(): T => NULL_OBJ as T;
 // - https://github.com/microsoft/TypeScript/issues/63378
 // - https://github.com/microsoft/TypeScript/issues/63377
 export default function createViewFactory<
-                        C extends WithHooks|null = null,
+                        C extends object|null = null,
                         E extends Elems = {},
                         D extends Data  = {}
                 >(
@@ -79,16 +79,18 @@ export default function createViewFactory<
 
         if( Controller !== null ) {
 
-            // @ts-ignore: dunno why it says that "on" doesn't exists...
-            //TODO: only if withHooks.
-            const handlers = args.on ?? {} as any;
-            const hooksProvider = createViewHooksProvider(ctx, handlers);
-
             const ctrlCtx = {
-                hooksProvider,
                 data         : opts,
                 //TODO: data -> target
             }
+
+            // likely a WithHooks...
+            if( "callHook" in Controller.prototype ) {
+                // @ts-ignore
+                const handlers = args.on ?? {} as any;
+                // @ts-ignore
+                ctrlCtx.hooksProvider = createViewHooksProvider(ctx, handlers);
+            }            
 
             //TODO...
             controller = createInstance(Controller, ctrlCtx as any) as NonNullable<C>;

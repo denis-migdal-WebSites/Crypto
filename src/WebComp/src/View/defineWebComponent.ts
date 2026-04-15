@@ -1,4 +1,3 @@
-import WithHooks     from "../utils/WithHooks";
 import { type Elems} from "./resolveElements";
 import createViewFactory, { ViewFactoryArgs, ViewFactoryControllerProvider } from "./createViewFactory";
 
@@ -14,7 +13,7 @@ function genId() {
 const EMPTY_OBJ = {};
 
 export default function defineWebComponent<
-                        C extends WithHooks|null = null,
+                        C extends object|null = null,
                         E extends Elems = {},
                         D extends Data  = {}
                 >(

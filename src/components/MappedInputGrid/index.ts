@@ -1,47 +1,44 @@
-import { defineWebComponent, WithHooks } from "@WebCompLib"
+import { defineWebComponent } from "@WebCompLib"
 import html from "../../WebComp/src/View/ShadowTemplate/parsers/html";
-import { HooksProvider } from "../../WebComp/src/utils/Hooks";
 import createPropertiesFactory from "../../WebComp/src/utils/Properties/createPropertiesFactory";
 import Value from "../../WebComp/src/utils/Properties/PropertyTypes/Value";
 import { Validated } from "../../WebComp/src/utils/Properties/Validation";
 import { isString, isBoolean, isArrayOf } from "../../WebComp/src/utils/Properties/Validation/types";
+import Computed from "../../WebComp/src/utils/Properties/PropertyTypes/Computed";
+import { onPropertiesChange } from "../../WebComp/src/utils/Properties/PropertiesListeners";
 
-type MIGCHooks = {
-    verified?: (ok: boolean) => void
-};
+function checkAnswers(ctx: {
+                                expected: readonly string[],
+                                answers: readonly string[]
+                            }) {
+
+    return ctx.expected.every( (_,i) => ctx.expected[i].toUpperCase() === ctx.answers[i].toUpperCase() );
+    
+}
+
+const StringArray = Validated( Value([] as readonly string[]), isArrayOf(isString) );
 
 const createMIGCData = createPropertiesFactory({
-    labels  : Validated( Value([] as readonly string[]), isArrayOf(isString) ),
-    expected: Validated( Value([] as readonly string[]), isArrayOf(isString) ),
+    labels  : StringArray,
+    answers : StringArray,
+    expected: StringArray,
     ro      : Validated( Value(false), isBoolean ),
-    // ok (3 state : null/true/false)
+    ok      : Computed( checkAnswers )
 });
 
-class MappedInputGridController extends WithHooks<MIGCHooks> {
+class MappedInputGridController /*extends WithHooks<MIGCHooks>*/ {
 
-    readonly data                   : ReturnType<typeof createMIGCData>;
+    readonly data: ReturnType<typeof createMIGCData>;
 
     constructor(args: {
-        hooksProvider: HooksProvider<MIGCHooks>
+        /*hooksProvider: HooksProvider<MIGCHooks>*/
         data: {
             labels  : readonly string[],
             expected: readonly string[],
             ro     ?: boolean
         }
     }) {
-        super(args);
-
         this.data = createMIGCData(args.data);
-    }
-
-    //TODO: listen
-    onInputsChanged(values: readonly string[]) {
-        this.callHook("verified", this.verify(values));
-    }
-
-    verify(values: readonly string[]) {
-        const expected = this.data.expected;
-        return expected.every( (_,i) => expected[i].toUpperCase() === values[i].toUpperCase() )
     }
 }
 
@@ -60,18 +57,15 @@ const MappedInputGrid = defineWebComponent(
         elements: {
             grid: HTMLElement,
         },
-        on: {
-            verified(ctx, ok) {
-                ctx.target.classList.toggle("ok", ok);
-            },
-        },
         attachController(ctx, controller) {
 
             const labels   = controller.data.labels;
             const expected = controller.data.expected;
             const isRO     = controller.data.ro;
 
-            console.warn("IS_RO", isRO);
+            onPropertiesChange( controller.data, () => {
+                ctx.target.classList.toggle("ok", controller.data.ok);
+            });
 
             let size = 1;
             for( let i = 0; i < labels.length; ++i) {
@@ -105,9 +99,9 @@ const MappedInputGrid = defineWebComponent(
 
                 input.addEventListener("input", () => {
 
-                    controller.onInputsChanged(inputs.map( e => {
+                    controller.data.answers = inputs.map( e => {
                         return e.value.toUpperCase();
-                    }));
+                    });
 
                     if( input.value.length >= size) {
 
