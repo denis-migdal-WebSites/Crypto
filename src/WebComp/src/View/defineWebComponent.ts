@@ -1,7 +1,8 @@
 import WithHooks     from "../utils/WithHooks";
 import { type Elems} from "./resolveElements";
 import createViewFactory, { ViewFactoryArgs, ViewFactoryControllerProvider } from "./createViewFactory";
-import { Data } from "../utils/Properties";
+
+type Data = Record<string, any>;
 
 export const WC_ATTRNAME = "data-wc";
 

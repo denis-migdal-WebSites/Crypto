@@ -41,6 +41,25 @@ export class PropertiesStore<T extends Record<string, any>>
         this.trigger(source);
     }
 
+    updateProperties(values: Partial<T>, source: unknown = null) {
+
+        let changed = false;
+
+        for(const name in values) {
+
+            if( ! this.properties[name].set(values[name]) )
+                continue;
+
+            changed = true;
+
+            // no needs to test it in get().
+            if( __DEBUG__ ) this.validate(name);
+        }
+        
+        if(changed)
+            this.trigger(source);
+    }
+
     validate(name: Extract<keyof T, string>) {
         if( this.properties[name].validate !== undefined ) {
             const result = this.properties[name].validate();

@@ -2,6 +2,10 @@ export function isString(u: unknown): u is string {
     return typeof u === 'string';
 }
 
+export function isBoolean(u: unknown): u is boolean {
+    return typeof u === 'boolean';
+}
+
 export function isArrayOf<T>( cond: ((u: unknown) => u is T)
                                    |((u: unknown) => boolean) ) {
     

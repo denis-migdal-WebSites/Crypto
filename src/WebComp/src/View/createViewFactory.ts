@@ -6,8 +6,9 @@ import resolveElements, { Elems, ElemsDesc }    from "./resolveElements";
 import { createViewHooksProvider, GetHandlers } from "./handlers";
 import ShadowTemplate, { ShadowTemplateArgs }   from "./ShadowTemplate";
 import { Root, ViewCallback, ViewCtx }          from "./ViewContext";
-import { Data } from "../utils/Properties";
 import { NULL_OBJ, NULL_OP } from "../utils/NullObjects";
+
+type Data = Record<string, any>;
 
 type ControllerProviderCtx<T extends Hooks, D extends Data> = {
         hooksProvider: HooksProvider<T>,

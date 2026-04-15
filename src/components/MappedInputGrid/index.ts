@@ -1,23 +1,25 @@
 import { defineWebComponent, WithHooks } from "@WebCompLib"
 import html from "../../WebComp/src/View/ShadowTemplate/parsers/html";
-import { descriptors } from "../../WebComp/src/utils/dataDesc";
 import { HooksProvider } from "../../WebComp/src/utils/Hooks";
-import createDataClass from "../../WebComp/src/utils/Properties";
+import createPropertiesFactory from "../../WebComp/src/utils/Properties/createPropertiesFactory";
+import Value from "../../WebComp/src/utils/Properties/PropertyTypes/Value";
+import { Validated } from "../../WebComp/src/utils/Properties/Validation";
+import { isString, isBoolean, isArrayOf } from "../../WebComp/src/utils/Properties/Validation/types";
 
 type MIGCHooks = {
     verified?: (ok: boolean) => void
 };
 
-const MIGCDataClass = createDataClass({
-    labels  : descriptors.StringArray([]),
-    expected: descriptors.StringArray([]),
-    ro      : descriptors.Boolean    (false),
+const createMIGCData = createPropertiesFactory({
+    labels  : Validated( Value([] as readonly string[]), isArrayOf(isString) ),
+    expected: Validated( Value([] as readonly string[]), isArrayOf(isString) ),
+    ro      : Validated( Value(false), isBoolean ),
     // ok (3 state : null/true/false)
 });
 
 class MappedInputGridController extends WithHooks<MIGCHooks> {
 
-    readonly data                   : ReturnType<typeof MIGCDataClass>;
+    readonly data                   : ReturnType<typeof createMIGCData>;
 
     constructor(args: {
         hooksProvider: HooksProvider<MIGCHooks>
@@ -29,15 +31,7 @@ class MappedInputGridController extends WithHooks<MIGCHooks> {
     }) {
         super(args);
 
-        //TODO...
-        const data = {
-            labels  : args.data.labels  .map( e => e.toUpperCase()),
-            expected: args.data.expected.map( e => e.toUpperCase()),
-            ro      : args.data.ro!,//TODO...
-        };
-
-        // no need for special things => not listened...
-        this.data = MIGCDataClass(data);
+        this.data = createMIGCData(args.data);
     }
 
     //TODO: listen
@@ -47,7 +41,7 @@ class MappedInputGridController extends WithHooks<MIGCHooks> {
 
     verify(values: readonly string[]) {
         const expected = this.data.expected;
-        return expected.every( (_,i) => expected[i] === values[i] )
+        return expected.every( (_,i) => expected[i].toUpperCase() === values[i].toUpperCase() )
     }
 }
 
@@ -97,7 +91,7 @@ const MappedInputGrid = defineWebComponent(
 
                 const element = elements[i] = document.createElement("span");
 
-                const label = html`<span>${labels[i]}</span>`;
+                const label = html`<span>${labels[i].toUpperCase()}</span>`;
                 const input = inputs[i] = html<HTMLInputElement>`<input maxlength=${size} />`;
 
                 if( isRO ) {

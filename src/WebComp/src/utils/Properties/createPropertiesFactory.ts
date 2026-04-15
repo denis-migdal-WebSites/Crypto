@@ -8,9 +8,11 @@ export default function createPropertiesFactory<T extends Record<string, any>>(
     const keys  = [...Object.keys(descriptors)] as (Extract<keyof T, string>)[];
     const Proxy = createProxyClass<T>(keys);
 
-    return () => {
+    return (initialValues: Partial<T> = {}) => {
 
         const store = new PropertiesStore(descriptors, Proxy as any);
+
+        store.updateProperties(initialValues);
 
         return store.mainProxy;
     }
