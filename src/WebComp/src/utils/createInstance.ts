@@ -10,7 +10,7 @@ export type Constructible<T extends {} = {}, Args extends unknown[] = never[]>
 
 export function isClass<T    extends {}        = {},
                         ARGS extends unknown[] = never[]>(
-                            obj: Constructible<T, ARGS>
+                            obj: Constructible<T, ARGS>|unknown
                         ): obj is Cstr<T, ARGS> {
     const prototype = Object.getOwnPropertyDescriptor(obj, "prototype");
     if( prototype === undefined)
@@ -26,7 +26,7 @@ export default function createInstance< T    extends {},
                            ...args      : NoInfer<ARGS>
                          ) {
 
-    if( isClass(constructible) )
+    if( isClass<T, ARGS>(constructible) )
         return new constructible(...args);
 
     return constructible(...args);

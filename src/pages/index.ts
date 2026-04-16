@@ -55,7 +55,7 @@ const elems = resolveElements(document.body, {
                     expected,
                     ro      : true
                 }),
-    "test": new MappedInputGrid({
+    "test": () => new MappedInputGrid({
         labels  : ["H", "e", "l", "l", "o"],
         expected: ["H", "e", "l", "l", "o"],
         ro: false,

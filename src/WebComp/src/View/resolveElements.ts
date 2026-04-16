@@ -1,7 +1,9 @@
+import { isClass } from "../utils/createInstance";
+
 export type Elems = Record<string, HTMLElement>;
 
 export type ElemsDesc<T extends Elems> = {
-    [K in keyof T]: T[K]|(new() => T[K])
+    [K in keyof T]: T[K]|(() => T[K])|(new() => T[K])
 }
 
 export default function resolveElements<
@@ -13,18 +15,40 @@ export default function resolveElements<
 
     const elems = target.querySelectorAll<HTMLElement>('[data-wc-id]');
 
-
     let elements = {} as ELEMS;
     for(let i = 0; i < elems.length; ++i) {
 
-        const name = elems[i].dataset.wcId!;
-        if(elems[i].localName === "wc-placeholder") {
-            // @ts-ignore
-            elements[name] = elemsDescriptor[name];
+        const name       = elems[i].dataset.wcId!;
+        const descriptor = elemsDescriptor[name];
 
-            elems[i].replaceWith(elemsDescriptor[name] as HTMLElement);
+        if( __DEBUG__ )
+            if( descriptor === undefined)
+                throw new Error(`Unknown element: ${name}`);
+
+        if(elems[i].localName === "wc-placeholder") {
+
+            if(__DEBUG__) {
+                if( isClass(descriptor) )
+                    throw new Error(`Expected factory descriptor for ${name}, got assertion descriptor`);
+            }
+
+            let element = descriptor as HTMLElement;
+            if( typeof descriptor === "function")
+                element = (descriptor as any)();
+
+            // @ts-ignore
+            elements[name] = element;
+            elems[i].replaceWith(element);
 
             continue;
+        }
+
+        if( __DEBUG__ ) {
+            if( ! isClass(descriptor) )
+                throw new Error(`Expected assertion descriptor for ${name}, got factory descriptor`);
+
+            if( ! (elems[i] instanceof descriptor) )
+                throw new Error(`Element mismatch: ${name} expecting ${descriptor.name}, got ${elements[name].constructor.name}`);
         }
 
         // @ts-ignore
@@ -32,21 +56,6 @@ export default function resolveElements<
     }
 
     if( __DEBUG__ ) {
-    
-        for(let name in elements) {
-
-            const descriptor = elemsDescriptor[name];
-
-            if( descriptor === undefined )
-                throw new Error(`Unextracted element: ${name}`);
-
-            if( typeof descriptor !== "function")
-                continue;
-
-            if( ! (elements[name] instanceof descriptor) )
-                throw new Error(`Element mismatch: ${name} expecting ${descriptor.name}, got ${elements[name].constructor.name}`);
-        }
-
         for(let name in elemsDescriptor)
             if( ! (name in elements) )
                 throw new Error(`Element missing: ${name}`);
