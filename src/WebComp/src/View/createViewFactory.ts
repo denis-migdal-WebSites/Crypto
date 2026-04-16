@@ -7,6 +7,7 @@ import { createViewHooksProvider, GetHandlers } from "./handlers";
 import ShadowTemplate, { ShadowTemplateArgs }   from "./ShadowTemplate";
 import { Root, ViewCallback, ViewCtx }          from "./ViewContext";
 import { NULL_OBJ, NULL_OP } from "../utils/NullObjects";
+import Renderer from "../utils/FrameScheduler/Renderer";
 
 type Data = Record<string, any>;
 
@@ -92,6 +93,14 @@ export default function createViewFactory<
             controller = createInstance(Controller, ctrlCtx as any) as NonNullable<C>;
         }
 
+        // setup UI...
+        const render = (ctrler: C = controller) => {
+            // @ts-ignore
+            console.warn("render :)", ctrler.properties.ok);
+        }
+
+        const ui = new Renderer( render );
+
         // execute it even if no controllers.
         // processDataChange(ctx, controller); - no initial calls.
         attachController (ctx, controller);
@@ -99,6 +108,12 @@ export default function createViewFactory<
         return {
             ctx,
             controller,
+            render       : (ctrler: C = controller) => {
+                render(ctrler);
+                // was manually rendered.
+                ui.cancelScheduledRender();
+            },
+            requestRender: () => ui.requestRender(),
         } 
     }
 }

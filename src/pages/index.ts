@@ -1,6 +1,7 @@
 import { resolveElements } from "@WebCompLib"
 
 import MappedInputGrid from "../components/MappedInputGrid";
+import { renderWithOverrides } from "../WebComp/src/View/defineWebComponent";
 
 import "../WebComp/src/utils/FrameScheduler/test";
 
@@ -61,5 +62,8 @@ const elems = resolveElements(document.body, {
         ro: false,
     })
 });
+
+// @ts-ignore... (tests)
+renderWithOverrides(elems.test, {ok: false});
 
 elems.inputgrid.style.setProperty("width", "500px");

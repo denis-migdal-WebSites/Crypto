@@ -8,6 +8,9 @@ function checkAnswers(ctx: {
                                 expected: readonly string[],
                                 answers: readonly string[]
                             }) {
+    
+    if(ctx.expected.length !== ctx.answers.length)
+        return false;
 
     return ctx.expected.every( (_,i) => ctx.expected[i].toUpperCase() === ctx.answers[i].toUpperCase() );
     

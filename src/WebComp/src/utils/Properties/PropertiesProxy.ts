@@ -16,6 +16,32 @@ export function clonePropertiesProxy<T extends ProxyProperties>(proxy: T) {
     return proxy[PROXY_CLONE]() as T;
 }
 
+type GetProperties<T> = T extends ProxyProperties<infer D, any> ? D : never;
+
+export function updateProperties<
+                            T extends ProxyProperties,
+                        >(proxy: T, values: NoInfer<Partial<GetProperties<T>>>) {
+    const target = proxy[PROXY_TARGET];
+
+    // @ts-ignore
+    target.updateProperties( values );
+}
+
+export function createPropertiesStub<
+                            T extends ProxyProperties,
+                        >(proxy: T, values: NoInfer<Partial<GetProperties<T>>>) {
+
+    const result = {} as T;
+    for(const key in proxy)
+        result[key] = proxy[key];
+
+    for(const key in values)
+        // @ts-ignore
+        result[key] = values[key];
+
+    return result;
+}
+
 //TODO: cf MWL Proxy
 // changed:
 // - use symbol

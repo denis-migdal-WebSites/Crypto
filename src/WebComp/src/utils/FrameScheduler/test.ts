@@ -1,12 +1,13 @@
-import createRenderScheduler from "./createRenderScheduler";
+import Renderer from "./Renderer";
 
-const foo = createRenderScheduler( () => console.warn("ok") );
+const foo = new Renderer( () => console.warn("ok") );
 
-foo();
-foo();
-foo();
+foo.requestRender();
+foo.requestRender();
+foo.requestRender();
 
 setTimeout( () => {
-    foo();
-    foo();
+    foo.requestRender();
+    foo.requestRender();
+    foo.requestRender();
 }, 500)
