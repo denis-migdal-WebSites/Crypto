@@ -36,17 +36,22 @@ Architecture
     - no logic, only DOM manipulations.
     - instantiate the ShadowRoot
     - initialize and update UI, e.g. listen DOM events.
+    - persistant data => dans Controller.properties ou stocké sur élément DOM.
 
-- Controller(hooks):
+- Controller(properties):
     - [state] expose properties.
     - [hooks] expose an API and hooks.
 
 - Properties
     - Property: define the get()/set()/markStale().
+    - For dataset: SubProperty to modify value ?
+        - color.get() => from dataset.color
+        - color.set() => modify dataset.color
+            /!\ ChartUpdate (revérifier comportement)...
     - For signals: requires lazyUpdate(source, ...keys).
-        - store sources[propname] = source.
-        - when get() => fetch lazy updates.
-        - either proxy Properties or integrate in PropertiesStore
+    - store sources[propname] = source.
+    - when get() => fetch lazy updates.
+    - either proxy Properties or integrate in PropertiesStore
 
 TODO
 ====
