@@ -1,6 +1,5 @@
 import { type Elems} from "./resolveElements";
 import createViewFactory, { ViewFactoryArgs, ViewFactoryControllerProvider } from "./createViewFactory";
-import { createPropertiesStub } from "../utils/Properties/PropertiesProxy";
 
 type Data = Record<string, any>;
 
@@ -49,8 +48,8 @@ export default function defineWebComponent<
             return this.controller.properties;
         }
 
-        refreshUi(controller?: C) {
-            return this.view.refresh(controller);
+        refreshUi() {
+            return this.view.refresh();
         }
 
         requestUiRefresh() {
@@ -61,13 +60,4 @@ export default function defineWebComponent<
     customElements.define(args.name, WebComponent);
 
     return WebComponent;
-}
-
-// used for tests...
-export function refreshUiWithOverrides<T extends InstanceType<ReturnType<typeof defineWebComponent<any, any, D>>>, D extends Record<string, any>>(
-                                            target: T,
-                                            overrides: NoInfer<Partial<D>>
-                                        ) {
-    // @ts-ignore
-    target.refreshUi({properties: createPropertiesStub(target.properties, overrides)});
 }

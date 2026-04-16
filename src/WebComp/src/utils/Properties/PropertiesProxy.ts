@@ -27,6 +27,8 @@ export function updateProperties<
     target.updateProperties( values );
 }
 
+/*
+    // better: force value (for tests).
 export function createPropertiesStub<
                             T extends ProxyProperties,
                         >(proxy: T, values: NoInfer<Partial<GetProperties<T>>>) {
@@ -40,7 +42,7 @@ export function createPropertiesStub<
         result[key] = values[key];
 
     return result;
-}
+}*/
 
 //TODO: cf MWL Proxy
 // changed:

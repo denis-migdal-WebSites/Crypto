@@ -5,8 +5,8 @@ import WithHooks, { GetHooks }           from "../utils/Hooks/WithHooks";
 import resolveElements, { Elems, ElemsDesc }    from "./resolveElements";
 import { createViewHooksProvider, GetHandlers } from "./handlers";
 import ShadowTemplate, { ShadowTemplateArgs }   from "./ShadowTemplate";
-import { Root, ViewCtx }          from "./ViewContext";
-import { NULL_ARRAY, NULL_OBJ } from "../utils/NullObjects";
+import { Root, ViewCallback, ViewCtx }          from "./ViewContext";
+import { NULL_OBJ, NULL_OP } from "../utils/NullObjects";
 import Renderer from "../utils/FrameScheduler/Renderer";
 import { onPropertiesChange } from "../utils/Properties/PropertiesListeners";
 
@@ -32,6 +32,11 @@ export type ViewFactoryControllerProvider<C extends object|null, D extends Data>
                         ? null
                         : ControllerProvider<NonNullable<C>, D>
 
+type AttachControllerCallback<E extends Elems, C> = ViewCallback<ViewCtx<E>, [
+                        controller: Omit<C, "callHook">,
+                        onRefresh : (callback: () => void ) => void
+                    ], void>;
+
 export type ViewFactoryArgs<
             C extends object|null,
             E extends Elems = {},
@@ -41,9 +46,12 @@ export type ViewFactoryArgs<
             elements?: ElemsDesc<E>,
             ui      ?: NoInfer<UIDesc<E, C>>
         } & NoInfer<C extends WithHooks ? {
-            // controller accessible here.
-            on      ?: GetHandlers<ViewCtx<E>, NonNullable<C>>
-        }: {}>;
+                // controller accessible here.
+                on      ?: GetHandlers<ViewCtx<E>, NonNullable<C>>
+            }: {}>
+        & NoInfer<{
+                attachController?: AttachControllerCallback<E, C>,
+            }>;
 
 const FCT_NULL_OBJ = <T>(): T => NULL_OBJ as T;
 
@@ -62,6 +70,8 @@ export default function createViewFactory<
     const template         = new ShadowTemplate(args.template ?? {});
     const elementsResolver = createElementsResolver(args.elements);
 
+    const attachController = args.attachController ?? NULL_OP;
+
     return (target: HTMLElement, opts: Partial<D> = {}) => {
 
         const root     = template.createShadowRoot(target);
@@ -70,7 +80,9 @@ export default function createViewFactory<
         const ctx = { target, root, elements, };
 
         const controller = createController<C, E, D>(ctx, Controller, opts);
-        const ui         = createUi<E, C>(ctx, controller, args.ui);
+        const ui         = createUi();
+       
+        attachController(ctx, controller, ui.registerRefreshHook);
 
         if( controller !== null && "properties" in controller)
             onPropertiesChange( controller.properties as any,
@@ -126,61 +138,24 @@ function createController<
 // ===============================================
 //TODO: move some (?).
 
-function _instantiateUi<E extends Elems, C>(ui_cfg: UIDesc<E, C>, result: UI<E, C>[]) {
+function createUi() {
 
-    if( typeof ui_cfg === "function") {
-        result.push( ui_cfg() );
-        return;
+    const callbacks = new Array<() => void>();
+
+    const render = function() {
+        for(let i = 0; i < callbacks.length; ++i)
+            callbacks[i]();
     }
 
-    for(const key in ui_cfg)
-        _instantiateUi(ui_cfg[key], result);
-}
-
-function instantiateUi<E extends Elems, C>(ui_cfg?: UIDesc<E, C>) {
-
-    if( ui_cfg === undefined) return NULL_ARRAY;
-
-    const result: UI<E, C>[] = [];
-
-    _instantiateUi(ui_cfg, result);
-
-    return result;
-}
-
-function createRefresh<E extends Elems, C>(
-                                        ctx       : ViewCtx<E>,
-                                        controller: C,
-                                        uis       : readonly UI<E, C>[]
-                                    ) {
-
-    const filtered_uis = uis.filter( ui => ui.refresh !== undefined)
-
-    return (ctrler: C = controller) => {
-        for(let i = 0; i < filtered_uis.length; ++i)
-            filtered_uis[i].refresh!(ctx, ctrler); // keep this.
-    };
-}
-
-function createUi<E extends Elems, C>(ctx       : ViewCtx<E>,
-                                      controller: C,
-                                      ui_cfg   ?: UIDesc<E, C>) {
-
-    const uis = instantiateUi(ui_cfg);
-
-    const render   = createRefresh(ctx, controller, uis);
     const renderer = new Renderer( render );
-
-    for(let i = 0; i < uis.length; ++i) {
-        if( uis[i].attachController !== undefined)
-            uis[i].attachController!(ctx, controller);
-    }
-
     renderer.requestRender();
 
     return {
-        refresh(ctrler: C = controller) {
-            render(ctrler);
+        registerRefreshHook( callback: () => void ) {
+            callbacks.push(callback);
+        },
+        refresh() {
+            render();
             // was manually rendered.
             renderer.cancelScheduledRender();
         },
