@@ -56,16 +56,9 @@ Architecture
 TODO
 ====
 
-View:
-- expose
-    - update(X = null) [bypass]
-- uiX : ~= declare sub-component init/update.
-    - ui => global called first.
-        ~> else delegate parent (?)
-- processXXX : hooks internes.
-
 - Option to choose when to construct/initialize View...
 - resolveElements: add args argument for factory functions (not used).
+- Controller => si classe, default factory (avec ExtractProperties(target) ).
 
 => tsconfig (?)
     => references

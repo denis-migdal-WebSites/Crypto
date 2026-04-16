@@ -49,12 +49,12 @@ export default function defineWebComponent<
             return this.controller.properties;
         }
 
-        render(controller?: C) {
-            return this.view.render(controller);
+        refreshUi(controller?: C) {
+            return this.view.refresh(controller);
         }
 
-        requestRender() {
-            return this.view.requestRender();
+        requestUiRefresh() {
+            return this.view.requestRefresh();
         }
     }
 
@@ -64,10 +64,10 @@ export default function defineWebComponent<
 }
 
 // used for tests...
-export function renderWithOverrides<T extends InstanceType<ReturnType<typeof defineWebComponent<any, any, D>>>, D extends Record<string, any>>(
+export function refreshUiWithOverrides<T extends InstanceType<ReturnType<typeof defineWebComponent<any, any, D>>>, D extends Record<string, any>>(
                                             target: T,
                                             overrides: NoInfer<Partial<D>>
                                         ) {
     // @ts-ignore
-    target.render({properties: createPropertiesStub(target.properties, overrides)});
+    target.refreshUi({properties: createPropertiesStub(target.properties, overrides)});
 }
