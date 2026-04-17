@@ -41,6 +41,7 @@ Architecture
 - Controller(properties):
     - [state] expose properties.
     - [hooks] expose an API and hooks.
+        -> cannot depends on controller, required data as parameters.
 
 - Properties
     - Property: define the get()/set()/markStale().

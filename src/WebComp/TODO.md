@@ -14,16 +14,17 @@ Refactors
 - sortir les comportements ?
     /!\ pas trop générique !!! => uniquement si BESOIN.
     - peut-être
-        - on      : ViewHooks() ou dans le attachController (?).
+        - on      : ViewHooks() -> dans le controllerFactory (?).
     - pas besoin
         - elements: ViewElements()
         - template: ViewTemplate(html, css) [?].
     ...
 
-- Séparer CreateController (target, hooks) => extractViewData(target).
-    a. default function (extract data) - use si pas classe.
-    - si class, default function.
-    -> pas encore init mais hooks "fonctionnels" (?).
+- Séparer CreateController (target, hooks)
+    -> fct(target, hooks)
+        => extractViewData(target).
+        => buildHooks(hooks).
+    -> define : accept class => default fct.
 
 - fix types
     - rendre types + indépendants

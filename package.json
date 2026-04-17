@@ -24,7 +24,7 @@
         "glob": "^13.0.6",
         "mini-css-extract-plugin": "^2.9.0",
         "swc-loader": "^0.2.6",
-        "webpack": "^5.93.0",
+        "webpack": "^5.106.2",
         "webpack-cli": "^7.0.2"
     }
 }

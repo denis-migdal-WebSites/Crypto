@@ -4,7 +4,7 @@
     "compilerOptions": {
         "outDir": "./build/TS",
         "paths": {
-            "@WebCompLib" : ["./src/WebComp/src/lib/index.ts"],
+            "@WebCompLib" : ["src/WebComp/src/lib"],
         },
         "incremental"      : true,
         "noErrorTruncation": true,
@@ -14,7 +14,7 @@
         "erasableSyntaxOnly": true,
         "allowJs"           : true,
         "resolveJsonModule" : true,
-        "moduleResolution"  : "node",
+        "moduleResolution"  : "bundler",
         "moduleDetection"   : "force",
         "target"            : "esnext",
         "module"            : "esnext",

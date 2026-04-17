@@ -19,13 +19,6 @@ type ControllerProviderCtx<T extends Hooks, D extends Data> = {
 export type ControllerProvider<T extends object, D extends Data>
     = Constructible<T & {readonly properties?: D}, NoInfer<[ControllerProviderCtx<GetHooks<T>, D>]>>;
 
-type UI<E extends Elems, C> = {
-    attachController?: (ctx: ViewCtx<E>, controller: C) => void
-    refresh         ?: (ctx: ViewCtx<E>, controller: C) => void
-};
-
-type UIDesc<E extends Elems, C> = (() => UI<E, C>) | {[key: string]: UIDesc<E, C>};
-
 // fct
 export type ViewFactoryControllerProvider<C extends object|null, D extends Data>
                     = C extends null
@@ -40,18 +33,15 @@ type AttachControllerCallback<E extends Elems, C> = ViewCallback<ViewCtx<E>, [
 export type ViewFactoryArgs<
             C extends object|null,
             E extends Elems = {},
-    > = 
-        {
-            template?: ShadowTemplateArgs,
-            elements?: ElemsDesc<E>,
-            ui      ?: NoInfer<UIDesc<E, C>>
-        } & NoInfer<C extends WithHooks ? {
+    > = ShadowTemplateArgs
+        & {
+            elements        ?: ElemsDesc<E>,
+            attachController?: NoInfer<AttachControllerCallback<E, C>>
+          }
+        & NoInfer<C extends WithHooks ? {
                 // controller accessible here.
                 on      ?: GetHandlers<ViewCtx<E>, NonNullable<C>>
-            }: {}>
-        & NoInfer<{
-                attachController?: AttachControllerCallback<E, C>,
-            }>;
+            }: {}>;
 
 const FCT_NULL_OBJ = <T>(): T => NULL_OBJ as T;
 
@@ -67,7 +57,7 @@ export default function createViewFactory<
                     args      : ViewFactoryArgs<C, E>
                 ) {
 
-    const template         = new ShadowTemplate(args.template ?? {});
+    const template         = new ShadowTemplate(args);
     const elementsResolver = createElementsResolver(args.elements);
 
     const attachController = args.attachController ?? NULL_OP;

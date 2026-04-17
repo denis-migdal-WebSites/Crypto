@@ -7,10 +7,8 @@ export default defineWebComponent(
     MappedInputGridController,
     {
         name    : "mapped-inputgrid",
-        template: {
-            content : __LOAD_FILE__("./index.html"),
-            style   : __LOAD_FILE__("./index.css"),
-        },
+        content : __LOAD_FILE__("./index.html"),
+        style   : __LOAD_FILE__("./index.css"),
         elements: {
             grid: HTMLElement,
         },
