@@ -3,16 +3,17 @@ import Renderer from "../Renderer";
 export class UI {
 
     readonly callbacks = new Array<() => void>();
-    readonly renderer: Renderer;
 
-    constructor() {
-        this.renderer = new Renderer( this.render_callback );
-
-        // initial rendering...
-        this.renderer.requestRender();
-    }
+    // Renderer is lazy-initialized.
+    // Don't need renderer if no callbacks.
+    renderer: Renderer|null = null;
 
     addToRefresh( callback: () => void ) {
+        if(this.renderer === null) {
+            this.renderer = new Renderer( this.render_callback );
+            // initial rendering...
+            this.renderer.requestRender();
+        }
         this.callbacks.push(callback);
     }
 
@@ -22,10 +23,14 @@ export class UI {
     }
 
     readonly refresh = () => {
+        if( this.renderer === null)
+            return;
         this.renderer.render();
     }
 
     readonly requestRefresh = () => {
+        if( this.renderer === null)
+            return;
         this.renderer.requestRender();
     }
 }
