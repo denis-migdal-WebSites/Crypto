@@ -7,6 +7,7 @@ Pas besoin actuellement:
     ~> IntersectionObserver (cf LISS) ?
     ~> replanify
 - forcePropertiesValue (=> prochain set/revalidate, restore ?)
+- parts (for easier reuse...)
 
 Refactors
 =========

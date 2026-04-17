@@ -2,6 +2,8 @@ import { defineWebComponent } from "@WebCompLib"
 import MappedInputGridController from "./controller";
 import { setupAnswerLen, setupFields } from "./setup";
 import { NO_VALUE } from "../../WebComp/src/utils/NullObjects";
+import { UI } from "../../WebComp/src/View/createViewFactory";
+import { onPropertiesChange } from "../../WebComp/src/utils/Properties/PropertiesListeners";
 
 export default defineWebComponent(
     MappedInputGridController,
@@ -12,16 +14,30 @@ export default defineWebComponent(
         elements: {
             grid: HTMLElement,
         },
-        attachController: (ctx, controller, registerRefreshHook) => {
+        attachController: (ctx, controller, ui) => {
+
+            /* 
+                ui.addParts(
+                    okX -> XXX (?).
+                
+                )
+
+                parts: { (for re-use ?) ~> type deduction dangerous...
+                "ok": adapt(ok, {key: target}) (?).
+                    // () => setup()
+                    //  - from : attachController() + refresh()...
+                    //  -> attach to registerRefreshHook ?
+            } */
 
             // setup...
+            // answerLen.setup(ctx.target, controller) [?].
+            // fields   .setup(...)
             const answerLen = setupAnswerLen(ctx.target, controller);
             setupFields(ctx.elements.grid, controller, answerLen);
 
-            const propsRules = createPropertiesRules(controller.properties);
-            registerRefreshHook(propsRules);
+            const rules = new RefreshRules(controller, ui);
 
-            propsRules.whenChanged(["ok"], () => {
+            rules.whenPropertiesChanged(["ok"], () => {
                 ctx.target.classList.toggle("ok", controller.properties.ok)
             });
         }
@@ -50,29 +66,44 @@ function propertiesChangeDetector<T extends Record<string, any>>(
     }
 }
 
-type PropertiesRules<T> = (() => void) & {
-    whenChanged: <K extends Extract<keyof T, string>>(keys: K[], callback: () => void) => void;
-}
+class RefreshRules<C extends {properties: T}, T extends Record<string, any>> {
 
-function createPropertiesRules<T extends Record<string, any>>(properties: T)
-                                                        : PropertiesRules<T> {
+    readonly controller: C;
+    readonly ui        : UI;
 
-    const callbacks = new Array<() => void>();
-    
-    const evaluate: PropertiesRules<T> = function() {
-        for(let i = 0; i < callbacks.length; ++i)
-            callbacks[i]();
+    readonly callback  = () => this.evaluate();
+    readonly callbacks = new Array<() => void>();
+
+    isListeningProperties = false;
+
+    evaluate() {
+        for(let i = 0; i < this.callbacks.length; ++i)
+            this.callbacks[i]();
     }
 
-    evaluate.whenChanged = function(keys, callback) {
+    constructor(controller: C, ui: UI) {
+        this.controller = controller;
+        this.ui         = ui;
 
-        const detectChange = propertiesChangeDetector(properties, ...keys);
-
-        callbacks.push(() => {
-                if( detectChange() )
-                    callback();
-            });
+        ui.addToRefresh( this.callback );
     }
 
-    return evaluate;
+    whenPropertiesChanged(keys   : readonly (Extract<keyof T, string>)[],
+                         callback: () => void) {
+
+        if( ! this.isListeningProperties ) {
+            onPropertiesChange( this.controller.properties as any, //TODO...
+                                this.ui.requestRefresh )
+            this.isListeningProperties = true;
+        }
+
+        const detectChange = propertiesChangeDetector(
+                                        this.controller.properties,
+                                        ...keys);
+
+        this.callbacks.push(() => {
+            if( detectChange() )
+                callback();
+        });
+    }
 }

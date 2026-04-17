@@ -8,7 +8,6 @@ import ShadowTemplate, { ShadowTemplateArgs }   from "./ShadowTemplate";
 import { Root, ViewCallback, ViewCtx }          from "./ViewContext";
 import { NULL_OBJ, NULL_OP } from "../utils/NullObjects";
 import Renderer from "../utils/FrameScheduler/Renderer";
-import { onPropertiesChange } from "../utils/Properties/PropertiesListeners";
 
 type Data = Record<string, any>;
 
@@ -19,6 +18,8 @@ type ControllerProviderCtx<T extends Hooks, D extends Data> = {
 export type ControllerProvider<T extends object, D extends Data>
     = Constructible<T & {readonly properties?: D}, NoInfer<[ControllerProviderCtx<GetHooks<T>, D>]>>;
 
+export type UI = ReturnType<typeof createUi>;
+
 // fct
 export type ViewFactoryControllerProvider<C extends object|null, D extends Data>
                     = C extends null
@@ -27,7 +28,7 @@ export type ViewFactoryControllerProvider<C extends object|null, D extends Data>
 
 type AttachControllerCallback<E extends Elems, C> = ViewCallback<ViewCtx<E>, [
                         controller: Omit<C, "callHook">,
-                        onRefresh : (callback: () => void ) => void
+                        ui        : UI
                     ], void>;
 
 export type ViewFactoryArgs<
@@ -72,11 +73,7 @@ export default function createViewFactory<
         const controller = createController<C, E, D>(ctx, Controller, opts);
         const ui         = createUi();
        
-        attachController(ctx, controller, ui.registerRefreshHook);
-
-        if( controller !== null && "properties" in controller)
-            onPropertiesChange( controller.properties as any,
-                                () => ui.requestRefresh() )
+        attachController(ctx, controller, ui);
 
         return {
             ctx,
@@ -141,7 +138,7 @@ function createUi() {
     renderer.requestRender();
 
     return {
-        registerRefreshHook( callback: () => void ) {
+        addToRefresh( callback: () => void ) {
             callbacks.push(callback);
         },
         refresh() {
