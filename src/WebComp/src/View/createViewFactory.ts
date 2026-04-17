@@ -7,8 +7,9 @@ import { createViewHooksProvider, GetHandlers } from "./handlers";
 import ShadowTemplate, { ShadowTemplateArgs }   from "./ShadowTemplate";
 import { Root, ViewCallback, ViewCtx }          from "./ViewContext";
 import { NULL_OBJ, NULL_OP } from "../utils/NullObjects";
-import Renderer from "../utils/FrameScheduler/Renderer";
+import { UI } from "../utils/FrameScheduler/UI";
 
+//TODO: move types ?
 type Data = Record<string, any>;
 
 type ControllerProviderCtx<T extends Hooks, D extends Data> = {
@@ -17,8 +18,6 @@ type ControllerProviderCtx<T extends Hooks, D extends Data> = {
 
 export type ControllerProvider<T extends object, D extends Data>
     = Constructible<T & {readonly properties?: D}, NoInfer<[ControllerProviderCtx<GetHooks<T>, D>]>>;
-
-export type UI = ReturnType<typeof createUi>;
 
 // fct
 export type ViewFactoryControllerProvider<C extends object|null, D extends Data>
@@ -71,7 +70,7 @@ export default function createViewFactory<
         const ctx = { target, root, elements, };
 
         const controller = createController<C, E, D>(ctx, Controller, opts);
-        const ui         = createUi();
+        const ui         = new UI();
        
         attachController(ctx, controller, ui);
 
@@ -83,6 +82,8 @@ export default function createViewFactory<
         } 
     }
 }
+
+// ===============================================
 
 function createElementsResolver<E extends Elems>(elements?: ElemsDesc<E>) {
 
@@ -120,34 +121,4 @@ function createController<
     }
 
     return controller;
-}
-
-// ===============================================
-//TODO: move some (?).
-
-function createUi() {
-
-    const callbacks = new Array<() => void>();
-
-    const render = function() {
-        for(let i = 0; i < callbacks.length; ++i)
-            callbacks[i]();
-    }
-
-    const renderer = new Renderer( render );
-    renderer.requestRender();
-
-    return {
-        addToRefresh( callback: () => void ) {
-            callbacks.push(callback);
-        },
-        refresh() {
-            render();
-            // was manually rendered.
-            renderer.cancelScheduledRender();
-        },
-        requestRefresh() {
-            renderer.requestRender();
-        }
-    }
 }

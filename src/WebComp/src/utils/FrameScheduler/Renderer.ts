@@ -1,5 +1,6 @@
 import scheduler from "./FrameScheduler";
 
+//TODO: more generic (?).
 export default class Renderer {
 
     protected readonly callback   : () => void;
