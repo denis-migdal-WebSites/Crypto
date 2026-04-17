@@ -48,12 +48,15 @@ export default function defineWebComponent<
             return this.controller.properties;
         }
 
+        connectedCallback   () { this.view.ui.resumeRefreshRequests(); }
+        disconnectedCallback() { this.view.ui.suspendRefreshRequests(); }
+
         refreshUi() {
-            return this.view.refresh();
+            return this.view.ui.refresh();
         }
 
         requestUiRefresh() {
-            return this.view.requestRefresh();
+            return this.view.ui.requestRefresh();
         }
     }
 

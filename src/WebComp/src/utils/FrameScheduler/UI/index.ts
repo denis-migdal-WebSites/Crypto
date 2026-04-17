@@ -22,6 +22,7 @@ export class UI {
             this.callbacks[i]();
     }
 
+    // bypass suspend
     readonly refresh = () => {
         if( this.renderer === null)
             return;
@@ -31,6 +32,35 @@ export class UI {
     readonly requestRefresh = () => {
         if( this.renderer === null)
             return;
+
+        if( this.isSuspended ) {
+            this.hasPendingRefreshRequest = true;
+            return;
+        }
+
         this.renderer.requestRender();
+    }
+
+    isSuspended = false; //TODO: could use guard.
+    hasPendingRefreshRequest = false;
+
+    suspendRefreshRequests() {
+        if( this.isSuspended || this.renderer === null) return;
+        this.isSuspended = true;
+
+        if( this.renderer.isScheduled ) {
+            this.renderer.cancelScheduledRender();
+            this.hasPendingRefreshRequest = true;
+        }
+    }
+
+    resumeRefreshRequests() {
+        if( ! this.isSuspended || this.renderer === null) return;
+        this.isSuspended = false;
+
+        if( this.hasPendingRefreshRequest ) {
+            this.hasPendingRefreshRequest = false;
+            this.requestRefresh();
+        }
     }
 }

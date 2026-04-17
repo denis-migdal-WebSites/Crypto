@@ -3,9 +3,12 @@ Features
 ========
 
 Pas besoin actuellement:
-- refreshStrategy
-    ~> IntersectionObserver (cf LISS) ?
-    ~> replanify
+- RefreshStrategy (plus loin que isConnected)
+    => getBoundingClientRect / getComputedStyle().visibility => polling (bad)
+        ~> à éviter (re-ajoute renderTask à chaque frame...)
+    => IntersectionObserver
+        ~> à éviter (saute une frame...)
+
 - forcePropertiesValue (=> prochain set/revalidate, restore ?)
 - parts (for easier reuse...)
 

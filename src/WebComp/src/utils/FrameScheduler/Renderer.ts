@@ -4,7 +4,7 @@ import scheduler from "./FrameScheduler";
 export default class Renderer {
 
     protected readonly callback   : () => void;
-    protected isScheduled = false;
+    isScheduled = false;
 
     protected readonly renderTask = () => {
         if( this.isScheduled === false ) return; // already ran.

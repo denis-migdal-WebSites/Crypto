@@ -77,8 +77,7 @@ export default function createViewFactory<
         return {
             ctx,
             controller,
-            refresh       : ui.refresh,
-            requestRefresh: ui.requestRefresh
+            ui,
         } 
     }
 }
