@@ -62,15 +62,12 @@ const elems = resolveElements(document.body, {
     })
 });
 
-/**
+/*
+overrideProperties(elems.test.controller.properties, {
+    "ok": false
+});
 
-import { refreshUiWithOverrides } from "../WebComp/src/View/defineWebComponent";
-
-setTimeout(
-    () => refreshUiWithOverrides(elems.test, {ok: true}),
-    2000
-)
-/**/
-
+elems.test.forceUiRefresh();
+*/
 
 elems.inputgrid.style.setProperty("width", "500px");

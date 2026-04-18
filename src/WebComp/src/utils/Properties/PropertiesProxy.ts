@@ -1,3 +1,6 @@
+import { FCT_FALSE, NULL_OP } from "../NullObjects";
+import { PropertiesStore } from "./PropertiesStore";
+
 export type ProxyTarget<T extends Record<string, any>> = {
     
     get: <K extends Extract<keyof T, string>>(name: K) => T[K];
@@ -27,22 +30,29 @@ export function updateProperties<
     target.updateProperties( values );
 }
 
-/*
-    // better: force value (for tests).
-export function createPropertiesStub<
+//For testing purpose... (+signals)
+//TODO: overrideUiProperties
+//TODO: rewriteProperties
+    // (p) => fixed().
+    // (p) => temporary(p).
+export function overrideProperties<
                             T extends ProxyProperties,
                         >(proxy: T, values: NoInfer<Partial<GetProperties<T>>>) {
 
-    const result = {} as T;
-    for(const key in proxy)
-        result[key] = proxy[key];
+    const target = proxy[PROXY_TARGET] as PropertiesStore<GetProperties<T>>;
 
-    for(const key in values)
-        // @ts-ignore
-        result[key] = values[key];
+    for(const key in values) {
 
-    return result;
-}*/
+        const value = values[key]!;
+        //const property = target.properties[key];
+
+        target.properties[key] = {
+            get() { return value; },
+            set      : FCT_FALSE,
+            markStale: NULL_OP,
+        }
+    }
+}
 
 //TODO: cf MWL Proxy
 // changed:

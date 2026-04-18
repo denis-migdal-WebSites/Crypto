@@ -51,8 +51,8 @@ export default function defineWebComponent<
         connectedCallback   () { this.view.ui.resumeRefreshRequests(); }
         disconnectedCallback() { this.view.ui.suspendRefreshRequests(); }
 
-        refreshUi() {
-            return this.view.ui.refresh();
+        forceUiRefresh() {
+            return this.view.ui.forceRefresh();
         }
 
         requestUiRefresh() {

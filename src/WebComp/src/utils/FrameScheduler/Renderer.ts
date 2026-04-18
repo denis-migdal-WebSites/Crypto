@@ -8,7 +8,7 @@ export default class Renderer {
 
     protected readonly renderTask = () => {
         if( this.isScheduled === false ) return; // already ran.
-        this.render()
+        this.forceRender()
     };
 
     constructor(callback: () => void) {
@@ -22,7 +22,7 @@ export default class Renderer {
         scheduler.scheduleRender( this.renderTask );
     }
 
-    render() {
+    forceRender() {
         this.cancelScheduledRender();
         this.callback();
     }

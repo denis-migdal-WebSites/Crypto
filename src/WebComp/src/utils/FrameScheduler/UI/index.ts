@@ -23,10 +23,10 @@ export class UI {
     }
 
     // bypass suspend
-    readonly refresh = () => {
+    readonly forceRefresh = () => {
         if( this.renderer === null)
             return;
-        this.renderer.render();
+        this.renderer.forceRender();
     }
 
     readonly requestRefresh = () => {
