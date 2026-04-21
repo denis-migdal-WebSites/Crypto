@@ -29,6 +29,9 @@ Principes
 - savoir "quelle propriété a changée" difficile si defer (changé par rapport à quel état précédent) ?
 - state vs hooks: state = can miss an intermediate change, hooks cannot miss.
 
+- sources de données : throttle animationFrame, before render.
+    -> input slide déjà throttle...
+
 Architecture
 ============
 
@@ -56,10 +59,6 @@ Architecture
 
 TODO
 ====
-
-- Option to choose when to construct/initialize View...
-- resolveElements: add args argument for factory functions (not used).
-- Controller => si classe, default factory (avec ExtractProperties(target) ).
 
 => tsconfig (?)
     => references

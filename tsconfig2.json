@@ -1,0 +1,43 @@
+{
+    "include": ["src"],
+    "exclude": ["src/tests"],
+    "compilerOptions": {
+        "outDir": "./build/TS",
+        "paths": {
+            "@/*"         : ["src/*"],
+            "@WebCompLib" : ["src/WebComp/src/lib"]
+        },
+        "incremental"      : true,
+        "declaration"      : true,
+        "noErrorTruncation": true,
+
+        "sourceMap"         : true,
+        "alwaysStrict"      : true,
+        "erasableSyntaxOnly": true,
+        "allowJs"           : true,
+        "resolveJsonModule" : true,
+        "moduleResolution"  : "bundler",
+        "moduleDetection"   : "force",
+        "target"            : "esnext",
+        "module"            : "esnext",
+
+        "strict": true,
+
+        "noImplicitAny"     : true,
+        "noImplicitThis"    : true,
+        "noImplicitReturns" : true,
+        "noImplicitOverride": true,
+
+        "noUnusedLocals"      : true,
+        "noUnusedParameters"  : true,
+        "allowUnusedLabels"   : false,
+        "allowUnreachableCode": false,
+
+        "useUnknownInCatchVariables"        : true,
+        "noFallthroughCasesInSwitch"        : true,
+        "exactOptionalPropertyTypes"        : true,
+        "noPropertyAccessFromIndexSignature": false,
+        "noUncheckedSideEffectImports"      : true
+
+    }
+}

@@ -26,6 +26,12 @@ export function setupAnswerLen( target: HTMLElement,
     return size;
 }
 
+function printable(char: string) {
+    if( char === "\n")
+        return "↵";
+    return char;
+}
+
 export function setupFields(      grid: HTMLElement,
                             controller: MappedInputGridController,
                              answerLen: number) {
@@ -37,7 +43,7 @@ export function setupFields(      grid: HTMLElement,
 
     for(let i = 0; i < labels.length; ++i) {
         const element = elements[i] = document.createElement("span");
-        const label = html`<span>${labels[i].toUpperCase()}</span>`;
+        const label = html`<span>${printable(labels[i].toUpperCase())}</span>`;
         element.append(label, inputs[i]);
     }
 
@@ -57,13 +63,25 @@ export function createInputs(
 
     for(let i = 0; i < nbInputs; ++i) {
 
-        const input = inputs[i] = html<HTMLInputElement>`<input maxlength=${answerLen} />`;
+        const input = inputs[i] = html<HTMLInputElement>`<input placeholder="?" maxlength=${answerLen} />`;
 
         if( isRO ) {
             input.readOnly = true;
 
             if( expected[i] !== undefined)
-                input.value = expected[i];
+                input.value = printable(expected[i]);
+        }
+
+        if( ! isRO ) {
+
+            input.addEventListener("keypress", (ev) => {
+                if( ev.key !== "Enter")
+                    return;
+
+                ev.preventDefault();
+                input.value = "↵";
+                input.dispatchEvent( new Event("input") );
+            })
         }
 
         input.addEventListener("focus", () => {

@@ -3,6 +3,7 @@
         background-color: green;
 
         & input {
+            border-color: transparent;
             background-color: lightgreen;
         }
     }
@@ -14,7 +15,7 @@
     display: block;
 }
 
-[data-wc-id="grid"] {
+[data-wcid="grid"] {
 
     & > * {
         display: inline-block;
@@ -33,6 +34,17 @@
         }
         & > input {
             text-transform: uppercase;
+
+            &:empty::before {
+                content: "-";
+                background-color: red;
+            }
+
+            &[readonly] {
+                background-color: lightgray;
+                border-color: transparent;
+                outline: none;
+            }
         }
     }
 }

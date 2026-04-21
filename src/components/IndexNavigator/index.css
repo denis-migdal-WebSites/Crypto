@@ -1,0 +1,14 @@
+:host {
+    display: block;
+}
+
+[data-wcid="current"] {
+    display: inline-block;
+    width: calc( var(--len) * 1ch );
+    text-align: right;
+}
+
+[data-wcid="prev"], [data-wcid="next"] {
+    cursor: pointer;
+    user-select: none;
+}

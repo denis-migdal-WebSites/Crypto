@@ -1,5 +1,8 @@
 import { isClass } from "../utils/createInstance";
 
+const WCID_ATTRNAME = "data-wcid";
+const WCID_SELECTOR = `[${WCID_ATTRNAME}]`;
+
 export type Elems = Record<string, HTMLElement>;
 
 export type ElemsDesc<T extends Elems> = {
@@ -13,12 +16,12 @@ export default function resolveElements<
             elemsDescriptor: ElemsDesc<ELEMS>
         ): ELEMS {
 
-    const elems = target.querySelectorAll<HTMLElement>('[data-wc-id]');
+    const elems = target.querySelectorAll<HTMLElement>(WCID_SELECTOR);
 
     let elements = {} as ELEMS;
     for(let i = 0; i < elems.length; ++i) {
 
-        const name       = elems[i].dataset.wcId!;
+        const name       = elems[i].getAttribute(WCID_ATTRNAME)!;
         const descriptor = elemsDescriptor[name];
 
         if( __DEBUG__ )

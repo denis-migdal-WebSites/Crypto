@@ -10,7 +10,7 @@ declare const Deno: {
 
 let stats = new Map<string, number>();
 
-for(let i = 1; i <= 5; ++i) {
+for(let i = 1; i <= 1; ++i) {
     const book = await Deno.readTextFile(`./build/assets/book${i}.txt`);
 
     let count: number|undefined;

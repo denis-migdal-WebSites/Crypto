@@ -23,15 +23,25 @@ export class RefreshRules<C extends {properties: T}, T extends Record<string, an
         ui.addToRefresh( this.callback );
     }
 
-    whenPropertiesChanged(keys   : readonly (Extract<keyof T, string>)[],
-                         callback: () => void) {
-
+    protected ensurePropertiesListening() {
         if( ! this.isListeningProperties ) {
             onPropertiesChange( this.controller.properties as any, //TODO...
                                 this.ui.requestRefresh )
             this.isListeningProperties = true;
         }
+    }
 
+    whenPropertyChanged(key: Extract<keyof T, string>,
+                         callback: () => void) {
+
+        return this.whenPropertiesChanged([key], callback);
+    }
+
+    whenPropertiesChanged(keys   : readonly (Extract<keyof T, string>)[],
+                         callback: () => void) {
+
+        this.ensurePropertiesListening();
+        
         const detectChange = propertiesChangeDetector(
                                         this.controller.properties,
                                         ...keys);

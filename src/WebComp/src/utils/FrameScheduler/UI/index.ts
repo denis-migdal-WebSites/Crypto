@@ -12,6 +12,7 @@ export class UI {
         if(this.renderer === null) {
             this.renderer = new Renderer( this.render_callback );
             // initial rendering...
+            // allows to force render afterward if needed.
             this.renderer.requestRender();
         }
         this.callbacks.push(callback);
