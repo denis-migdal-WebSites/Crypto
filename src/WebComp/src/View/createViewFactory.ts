@@ -1,6 +1,8 @@
-import createInstance, { Constructible } from "../utils/createInstance";
-import { Hooks, HooksProvider }          from "../utils/Hooks/Hooks";
-import WithHooks, { GetHooks }           from "../utils/Hooks/WithHooks";
+import { type Constructible } from "@MWL/types";
+
+import createInstance           from "../utils/createInstance";
+import { Hooks, HooksProvider } from "../utils/Hooks/Hooks";
+import WithHooks, { GetHooks }  from "../utils/Hooks/WithHooks";
 
 import resolveElements, { Elems, ElemsDesc }    from "./resolveElements";
 import { createViewHooksProvider, GetHandlers } from "./handlers";

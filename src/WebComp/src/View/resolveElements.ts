@@ -1,4 +1,4 @@
-import { isClass } from "../utils/createInstance";
+import { isClass } from "@MWL/types";
 
 const WCID_ATTRNAME = "data-wcid";
 const WCID_SELECTOR = `[${WCID_ATTRNAME}]`;

@@ -5,7 +5,8 @@
         "outDir": "./build/TS",
         "paths": {
             "@/*"         : ["src/*"],
-            "@WebCompLib" : ["src/WebComp/src/lib"]
+            "@WebCompLib" : ["src/WebComp/src/lib"],
+            "@MWL/*"      : ["libs/MWL/dist/dev/libs/*"]
         },
         "incremental"      : true,
         "declaration"      : true,

@@ -1,4 +1,4 @@
-import { Cstr } from "./createInstance";
+import {type Cstr} from "@MWL/types";
 
 // not used currently, ignore...
 type Method<
